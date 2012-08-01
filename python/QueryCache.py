@@ -37,9 +37,17 @@ class QueryCache:
         """Save the result of a query to the cache"""
         db = repdb.connect_cache(self.context)
         c = db.cursor()
-        c.execute("""REPLACE INTO report_cache (dbname, report_key, last_run, result) 
-                VALUES(%s, %s, UNIX_TIMESTAMP(), %s)""",
-                (dbname, report.key, data))
+        
+        c.execute("""INSERT IGNORE INTO report_cache (dbname, report_key)
+                     VALUES(%s, %s)""",
+                  (dbname, report.key))
+
+        c.execute("""UPDATE report_cache
+                     SET last_run=UNIX_TIMESTAMP(), result=%s
+                     WHERE dbname=%s AND report_key=%s""",
+                     (data, dbname, report.key)
+                 )
+       
         db.commit()
     
     def purge(self, dbname, report):
