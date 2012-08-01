@@ -51,9 +51,6 @@ class Report:
             if sec[0] == 'query':
                 self.query = sec[1]
 
-            elif sec[0] == 'cache':
-                self.cache = sec[1]
-
             elif sec[0] == 'when':
                 self.when = sec[1]
 
