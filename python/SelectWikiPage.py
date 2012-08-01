@@ -13,18 +13,18 @@ from templates.SelectWiki import SelectWiki
 import repdb
 
 def response(context, req):
-	"""Display a list of wikis, and allow the user to select one."""
-	try:
-		wikis = repdb.wiki_list(context)
+    """Display a list of wikis, and allow the user to select one."""
+    try:
+        wikis = repdb.wiki_list(context)
 
-		t = req.prepare_template(SelectWiki)
-		t.wikis = wikis
+        t = req.prepare_template(SelectWiki)
+        t.wikis = wikis
 
-		output = str(t)
-		req.start_response('200 OK', [('Content-Type', 'text/html; charset=UTF-8')])
-		yield output
+        output = str(t)
+        req.start_response('200 OK', [('Content-Type', 'text/html; charset=UTF-8')])
+        yield output
 
-	except Exception, value:
-		yield req.error(str(value))
-	return
+    except Exception, value:
+        yield req.error(str(value))
+    return
 
