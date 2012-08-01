@@ -28,15 +28,17 @@ class QueryCache:
             return None
         return (r[0], r[1])
 
+    def check_create_row(self, cursor, dbname, report_key):
+         cursor.execute("""INSERT IGNORE INTO report_cache (dbname, report_key)
+                     VALUES(%s, %s)""",
+                  (dbname, report_key))
+    
     def save(self, dbname, report, data):
         """Save the result of a query to the cache"""
         db = repdb.connect_cache(self.context)
         c = db.cursor()
+        self.check_create_row(c, dbname, report.key)
         
-        c.execute("""INSERT IGNORE INTO report_cache (dbname, report_key)
-                     VALUES(%s, %s)""",
-                  (dbname, report.key))
-
         c.execute("""UPDATE report_cache
                      SET last_run=UNIX_TIMESTAMP(), result=%s
                      WHERE dbname=%s AND report_key=%s""",
