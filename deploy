@@ -1,0 +1,62 @@
+#! /bin/ksh
+# Copyright (c) 2008-2010 River Tarnell.
+#
+# Permission is granted to anyone to use this software for any purpose,
+# including commercial applications, and to alter it and redistribute it
+# freely. This software is provided 'as-is', without any express or implied
+# warranty.
+#
+# $Id: deploy 80 2010-02-06 21:09:54Z river $
+
+set -e
+
+if [[ ! -f jsmin || jsmin.c -nt jsmin ]]; then
+	echo "Creating jsmin..."
+	cc jsmin.c -o jsmin
+fi
+
+if [[ ! -f $HOME/.reports.cfg ]]; then
+	echo >&2 "Cannot run without $HOME/.reports.cfg."
+	exit 1
+fi
+INSTALLDIR=$(python -c "execfile(\"$HOME/.reports.cfg\", globals()); print base")
+WWW=$(python -c "execfile(\"$HOME/.reports.cfg\", globals()); print htmldir")
+
+mkdir -p $WWW $INSTALLDIR
+mkdir -p $INSTALLDIR/bin
+
+echo "Copying scripts to $WWW..."
+
+for script in fcgi/*.fcgi; do
+	cp $script $WWW
+done
+
+echo "Copying to $INSTALLDIR..."
+find python reports \! \( -name '.*' -o -name README \) | 
+	grep -v '\.svn' | 
+	cpio -Vpdm $INSTALLDIR 2>&1 | 
+	grep -v Existing || true
+
+echo "Compiling templates..."
+cheetah compile --nobackup -R $INSTALLDIR/python/templates
+
+echo "Minimising JavaScript to $WWW..."
+for js in $(cd javascript; echo *); do
+	./jsmin <javascript/$js >$WWW/$js
+done
+
+echo "Copying CSS..."
+cp css/* $WWW
+
+echo "Copying utilities..."
+for f in nightly; do
+	cp $f $INSTALLDIR/bin
+done
+
+echo "Copying i18n files..."
+find i18n \! -name '.*' | grep -v '\.svn' | cpio -Vpdm $WWW || true
+
+echo "Restarting FCGIs..."
+for x in $(cd fcgi; echo *); do
+	pkill -USR1 -f $WWW/$x
+done

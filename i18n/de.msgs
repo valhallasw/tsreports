@@ -1,0 +1,48 @@
+# General messages
+base_prefslink <a href="prefs.fcgi">Sprache/Einstellungen &auml;ndern</a>
+base_jiralink <a href="https://jira.toolserver.org/browse/REPORTS">Fehler melden oder Funktion beantragen</a>
+base_wikilink <a href="https://wiki.toolserver.org/view/Report_tool">Wiki</a>
+base_links %(prefslink)s | %(jiralink)s | %(wikilink)s
+
+
+# Categories.  You *must* define a category for at least English before
+# using it.
+category_users Benutzer
+category_articles Artikel
+category_images Bilder
+category_miscellaneous Sonstiges
+
+# SelectWiki messages
+select_wiki_title W&auml;hle ein Wiki
+select_wiki Bitte w&auml;hle ein Wiki f&uuml;r das du einen Bericht w&uuml;nscht (z.B. <em>de.wikipedia.org</em>):
+select_wiki_next Weiter &rarr;
+
+
+# SelectReport messages
+select_report_title W&auml;hle einen Bericht f&uuml;r %(wiki)s
+select_report Bitte w&auml;hle einen Bericht:
+select_report_disabled %(name)s *
+select_report_disabled_blurb Beachte: Berichte <span class='disabled-report'>die so aussehen</span> werden jede Nacht neu erstellt, der Prozess lief aber noch nicht. Sobald diese Berichte abgeschlossen sind, werden sie verf&uuml;gbar.
+select_report_no_reports Zur Zeit sind keine Berichte f&uuml;r %(wiki)s vorhanden.
+select_report_go_back &larr; Wiki wechseln
+
+# QueryVariables messages
+qvar_title Gib die Einstellungen f&uuml;r diesen Bericht ein
+qvar_blurb Dieser Bericht ben&ouml;tigt noch folgende Einstellungen:
+qvar_next Weiter &rarr;
+
+# PrefsForm messages
+prefs_title Berichtseinstellungen
+prefs_submit OK
+prefs_done Deine Einstellungen wurden erfolgreich ge&auml;ndert
+prefs_langlabel Sprache:
+
+# DoReport messages
+report_wascached Dieser Bericht wurde vor %(age)s erstellt.
+report_nocache Es wurde eingestellt, dass dieser Bericht nachts erstellt wird, aber er lief noch nicht, sodass noch keine Daten verf&uuml;gbar sind.
+report_variables_used Die folgenden Einstellunge wurden f&uuml;r den Bericht gemacht:
+report_variable %(name)s: %(value)s
+report_noresults Dieser Bericht gibt kein Ergebnis.
+report_changelinks &larr; %(changereport)s | %(changewiki)s
+report_change_report <a href="%(url)s">Report wechseln</a>
+report_change_wiki <a href="%(url)s">Wiki wechseln</a>

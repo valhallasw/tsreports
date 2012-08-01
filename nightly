@@ -1,0 +1,46 @@
+#! /usr/bin/env python
+# Copyright (c) 2008 River Tarnell <river@wikimedia.org>. 
+#
+# Permission is granted to anyone to use this software for any purpose,
+# including commercial applications, and to alter it and redistribute it
+# freely. This software is provided 'as-is', without any express or implied
+# warranty.
+#
+# $Id: nightly 30 2008-09-17 00:11:12Z river $
+
+import pwd, posix
+homedir = pwd.getpwuid(posix.getuid())[5]
+cfgfile = homedir + "/.reports.cfg"
+cfg = dict()
+execfile(cfgfile, cfg)
+cfg['homedir'] = homedir
+
+import sys
+sys.path.append(cfg['base'] + "/python")
+
+from Reports import ReportContext, Report
+from QueryCache import *
+
+context = ReportContext(cfg)
+
+if len(sys.argv) > 1:
+	reports = [sys.argv[1]]
+else:
+	reports = context.reports.keys()
+
+for key in reports:
+	report = context.reports[key]
+	if not report.nightly: 
+		continue
+	if len(sys.argv) > 2:
+		wikis = sys.argv[2:]
+	elif report.wikis != None:
+		wikis = report.wikis
+	else:
+		wikis = [x.domain for x in repdb.get_wiki_list(context)]
+
+	cache = QueryCache(context)
+	print report.key
+	for wiki in wikis:
+		w = repdb.find_wiki_domain(context, wiki)
+		cache.execute(report, w['dbname'], {}, True)

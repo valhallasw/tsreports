@@ -1,0 +1,20 @@
+# Copy this to ~/.reports.cfg.  It's just a Python script.
+
+# Where the source is installed to.
+base = '/home/river/ts-reports'
+
+# The name of the database used for caching reports.
+database = 'u_river'
+
+# The URL prefix.
+docroot = '/~river/reports'
+
+# A directory where some state (but not actual session data)
+# will be stored.
+sessiondir = '/home/river/.reports_sessions'
+
+# The location of the deployed document root
+htmldir = '/home/river/public_html/reports'
+
+# The database servers for the session and report cache
+dbserver = 'sql'

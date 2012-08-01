@@ -1,0 +1,20 @@
+%name Broken templates
+%description
+Lists pages which link to templates which don't exist.
+%end
+
+%category articles
+%cache 600
+
+%query
+SELECT P.page_namespace, P.page_title, tl_namespace, tl_title
+      FROM templatelinks 
+      JOIN page AS P ON P.page_id = tl_from
+      LEFT JOIN page AS L on L.page_namespace = tl_namespace AND L.page_title = tl_title
+      WHERE L.page_namespace IS NULL
+%end
+
+%fields
+page,	Title,		page_namespace, page_title
+page,	Template,	tl_namespace, tl_title
+%end

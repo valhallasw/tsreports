@@ -1,0 +1,23 @@
+## Copyright (c) 2008 River Tarnell <river@wikimedia.org>.  *#
+#*
+ * Permission is granted to anyone to use this software for any purpose,
+ * including commercial applications, and to alter it and redistribute it
+ * freely. This software is provided 'as-is', without any express or implied
+ * warranty.
+ *#
+#* $Id: SelectWiki.tmpl 10 2008-09-16 11:55:05Z river $ *#
+
+#from ReportBase import ReportBase
+#extends ReportBase
+
+#filter WebSafe
+
+#def title
+$i18n.fmt('prefs_title')
+#end def
+
+#def body
+	<p>$i18n.fmt('prefs_done')</p>
+#end def
+
+#end filter

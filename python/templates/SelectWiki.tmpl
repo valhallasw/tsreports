@@ -1,0 +1,40 @@
+## Copyright (c) 2008 River Tarnell <river@wikimedia.org>.  *#
+#*
+ * Permission is granted to anyone to use this software for any purpose,
+ * including commercial applications, and to alter it and redistribute it
+ * freely. This software is provided 'as-is', without any express or implied
+ * warranty.
+ *#
+#* $Id: SelectWiki.tmpl 67 2008-09-18 21:17:03Z river $ *#
+
+#from ReportBase import ReportBase
+#extends ReportBase
+
+#filter WebSafe
+
+#def title
+$i18n.fmt('select_wiki_title')
+#end def
+
+#def head
+<script type="text/javascript">
+\$(document).ready(function() {
+	/*
+	 * This would attempt to focus every wikilist, if there were
+	 * more than one.  Be careful if you add more for some reason.
+	 */
+	\$("input.wikilist").focus();
+});
+</script>
+#end def
+
+#def body
+	<form action="$context.docroot/" method="get">
+		<p>$i18n.fmt('select_wiki')</p>
+
+		<input class="wikilist" type="text" name="wiki" />
+		<input type="submit" value="$i18n.fmt('select_wiki_next')" />
+	</form>
+#end def
+
+#end filter

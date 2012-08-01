@@ -1,0 +1,9 @@
+#! /bin/ksh
+
+echo "Cleaning templates..."
+for file in python/templates/*.{py,pyc,bak}; do
+	base=${file##*/}
+	if [[ ! $base = "__init__.py" ]]; then
+		rm -f $file
+	fi
+done

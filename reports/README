@@ -1,0 +1,121 @@
+	This is a sample report file.  It shows how to write reports.
+	The report language is fairly simple.  Normal text, like this,
+	is ignored, and can be used to describe the report.  The actual
+	definition of the query is done in sections, which are indicated
+	by starting the line with a '%'.
+
+	In this example, all commentary is indented for readability. 
+	However, this is not a requirement.
+
+	First, set the name and description of the report.  These are shown to 
+	the user in the web interface.  This shows how to write a simple,
+	one-line definition.
+
+%name Last 100 edits
+%description Shows the last 100 edits for a user
+
+	You can also specify the description in other languages.
+
+%name:de This would be displayed to a German user.
+%description:de
+This is the German description.  As you can see, descriptions may span
+multiple lines.
+%end
+
+	Category is used to sort the list of reports in the web interface.
+	There's no fixed list of available categories, you can write
+	anything you want here.  If a report doesn't have a category, it's
+	put into 'miscellaneous'.
+
+	Note that before you use a category, you *must* define an i18n 
+	messages for it in at least i18n/en.msgs.
+
+%category users
+
+	If this is a slow query, it should be cached instead of run every time. 
+	There are two ways to do this: either mark it as a %nightly query, or
+	specify '%cache <time>'.  The former will run the query once every night
+	and cache the results until the next run.  The latter will cache the
+	query for the specified amount of time; the next request after this time
+	was expired will regenerate the cache.
+
+	Note that queries with variables cannot be cached.
+
+	One hour:
+	%cache 3600
+
+	Or:
+	%nightly
+
+	Next, we set the query used to generate this report.  This can be either a
+	simple query, or a query with variables.  Variables can be used like this:
+
+	%(VARNAME)s 
+
+	This shows how to write a multi-line value, which is useful for long values
+	like %query.  The '%query' on its own starts the value, and '%end' marks the
+	end.  Everything in-between is the value.
+
+	Also notice the %(username)s in the query.  This is a user-supplied variable,
+	which are explained below.
+
+%query
+# Inside a section, you can use a '#' at the start of a line to write
+# embedded comments.
+SELECT page_namespace, page_title, rev_timestamp 
+	FROM page,revision 
+	WHERE rev_user_text=%(username)s 
+		AND rev_page=page_id 
+	ORDER BY rev_timestamp DESC 
+	LIMIT 100
+%end
+
+	If you used variables above, you have to define them here.  The syntax is:
+
+	  %variable <name>, <type>, <params>
+	 
+	'params' specifies some type-specific values.  Currently only one type is
+	defined, username:
+	 
+	  username, <field name>
+
+	If you used %(foo)s above, you should defined "var_foo" here.
+
+	The user will be prompted to enter values for these variables when he runs a
+	query.  Note that queries that depend on variables cannot be cached.
+
+%variable username, username, Username
+
+	Next you specify the output fields for your query.  It's a list of field
+	definitions, one per line. A field definition is: 
+
+		<type>, <display title>, <fields>
+
+	Each field is separated by a comma and any number of spaces or tabs.
+
+	<fields> varies by types; the following types are currently available:
+
+	   page, <display title>, <namespace field>, <title field>
+	       <namespace field> - set it to the SQL field containing the page namespace
+	       <title field> - set it to the SQL field containing the page title
+
+	   user, <display title>, <username field>
+	       <username field> - set it to the SQL field containing the username
+
+	   timestamp, <display title>, <timestamp field>
+	       <username field> - set it to the SQL field containing the timestamp in MediaWiki format
+
+	   number, <display title>, <number field>
+	       <username field> - set it to the SQL field containing the number
+
+	   text, <display title>, <text field>
+	       <text field> - set it to the SQL field containing the text; no formatting
+			      will be done.
+
+	Here we define two fields - 'Page', a page title created from (page_namespace,page_title)
+	and 'Time', a timestamp.  We use tabs to separate the fields, to improve legibility.
+
+%fields
+page,		 Page,	 page_namespace, page_title 
+timestamp,	 Time,	 rev_timestamp
+%end

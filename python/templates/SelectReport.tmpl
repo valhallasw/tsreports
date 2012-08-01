@@ -1,0 +1,63 @@
+## Copyright (c) 2008 River Tarnell <river@wikimedia.org>.  *#
+#*
+ * Permission is granted to anyone to use this software for any purpose,
+ * including commercial applications, and to alter it and redistribute it
+ * freely. This software is provided 'as-is', without any express or implied
+ * warranty.
+ *#
+#* $Id: SelectReport.tmpl 70 2008-09-19 02:38:46Z river $ *#
+
+#from ReportBase import ReportBase
+#extends ReportBase
+
+#filter WebSafe
+
+#def title
+$i18n.fmt('select_report_title', { 'wiki': $wiki.domain })
+#end def
+
+#def body
+	#if len($categories) == 0
+		<p>$i18n.fmt('select_report_no_reports', { 'wiki': $wiki.domain })</p>
+	#else
+		<p id="select-report-go-back">
+			<a href="$context.docroot/">$i18n.fmt('select_report_go_back')</a>
+		</p>
+
+		<p>$i18n.fmt('select_report')</p>
+
+		#set $anydisabled = False
+		#for $cat, $reports in $categories.items()
+		<dl>
+			<dt>$cat</dt>
+			<dd>
+				<dl>
+				#for $report in $reports
+					<dt>
+					## Don't show a link for disabled templates
+					#if $report.key in $uncached
+						#set $anydisabled = True
+						<span class='disabled-report'
+							>$i18n.fmt('select_report_disabled', 
+								{ 'name': $i18n.report_name(report) } )</span>
+					#else
+						<a href="$context.docroot/?wiki=$wiki.dbname&report=$report.key"
+							>$i18n.report_name($report)</a>
+					#end if
+					</dt>
+					<dd>
+						$i18n.report_description($report)
+					</dd>
+				#end for
+				</dl>
+			</dd>
+		</dl>
+		#end for
+
+		#if $anydisabled == True
+			<p>$i18n.fmt('select_report_disabled_blurb')</p>
+		#end if
+	#end if
+#end def
+
+#end filter

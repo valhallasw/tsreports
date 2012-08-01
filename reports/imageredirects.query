@@ -1,0 +1,30 @@
+%name Redirect images
+%description
+Lists pages which link to redirects to images.
+%end
+
+%category images
+%nightly
+
+%wikis
+no.wikipedia.org
+%end
+
+%query
+SELECT p1.page_namespace pagens, p1.page_title pagetitle, il_to redirname
+	FROM imagelinks
+	JOIN page p1 on p1.page_id = il_from
+	WHERE (
+		NOT EXISTS (SELECT * FROM image WHERE img_name=il_to)
+		AND EXISTS (SELECT * FROM page WHERE page_namespace=6 AND page_title=il_to AND page_is_redirect=1)
+	) OR (
+		NOT EXISTS (SELECT * FROM commonswiki_p.image WHERE img_name=il_to)
+		AND EXISTS (SELECT * FROM commonswiki_p.page WHERE page_namespace=6 AND page_title=il_to AND page_is_redirect=1)
+	)
+	ORDER BY p1.page_namespace ASC LIMIT 1000
+%end
+
+%fields
+page,	Title,		pagens, pagetitle
+image,	Redirect,	redirname
+%end

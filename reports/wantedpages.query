@@ -1,0 +1,34 @@
+%name Wanted pages
+%description
+Lists links to non-existant pages, in order of most links.
+This is identical to the MediaWiki Special:Wantedpages report, except it
+only lists the first 1,000 pages.
+%end
+
+%category articles
+%nightly
+
+IMPORTANT: This is an expensive query - do not enable it everywhere!
+           Only add it on smaller wikis.  Test the run time before
+           adding a new wiki here.
+
+%wikis
+ar.wikipedia.org
+%end
+
+%query
+SELECT pl_namespace, pl_title, COUNT(*) AS nlinks
+	FROM pagelinks
+	LEFT JOIN page pg1 ON pl_namespace = pg1.page_namespace AND pl_title = pg1.page_title
+	LEFT JOIN page pg2 ON pl_from = pg2.page_id
+	WHERE	pg1.page_namespace IS NULL
+		AND pl_namespace NOT IN ( 2, 3 )
+		AND pg2.page_namespace != 8
+	GROUP BY pl_namespace, pl_title
+	ORDER BY nlinks DESC LIMIT 1000;
+%end
+
+%fields
+page,	Title,	pl_namespace, pl_title
+number,	Links,	nlinks
+%end

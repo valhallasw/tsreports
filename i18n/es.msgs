@@ -1,0 +1,33 @@
+# General messages
+base_prefslink <a href="prefs.fcgi">Cambie el Lenguaje / preferencias</a>
+
+# Categories.  You *must* define a category for at least English before
+# using it.
+category_users Usuario
+category_articles Artículos
+category_miscellaneous Miscellaneous
+
+# SelectWiki messages
+select_wiki_title Seleccione un Wiki
+select_wiki Por favor, el wiki te gustaría un informe para (por ejemplo, <em>es.wikipedia.org</ em>):
+select_wiki_next Siguiente &rarr;
+
+
+# SelectReport messages
+select_report_title Seleccione un informe para que se ejecute en %(wiki)s
+select_report Por favor, seleccione un informe:
+
+# QueryVariables messages
+qvar_title Introduzca las variables para su consulta
+qvar_blurb Su búsqueda requiere de algunas variables que deben registrarse
+qvar_next Siguiente &rarr;
+
+# PrefsForm messages
+prefs_title Informes preferencias
+prefs_submit OK
+prefs_done Tus preferencias se han cambiado.
+prefs_langlabel Idioma de la Interfaz:
+
+# DoReport messages
+report_wascached El presente Informe ha sido caché %(age)s antes.
+report_nocache Este informe está programado para ser regenerada cada noche, pero no ha sido aún correr, por lo que no hay datos disponibles.

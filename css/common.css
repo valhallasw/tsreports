@@ -1,0 +1,163 @@
+body {
+    background: #ccc;
+    font-family: sans-serif;
+    text-align: left;
+    margin: 0 auto 0;
+    color: #333;
+	font-size: 16px;
+}
+
+#header {
+    width: 90%;
+    margin: -30px 5% 0;
+    background: url('header_bg.gif') top left repeat-x #fff;
+    color: #333;
+}
+
+#sitenotice {
+    width: 90%;
+    color: #333;
+    border: solid 2px #993333;
+    margin: 5px auto 35px auto;
+    padding: 2px 5px 2px 5px;
+    background-color: white;
+    font-size: 90%;
+}
+
+h1 {
+    font-size:260%;
+    padding: 15px;
+    font-weight: normal;
+    margin-left: 10%;
+}
+
+h1 a, h1 a:visited {
+	text-decoration: none;
+	color: #333;
+}
+
+h1 span {
+    color: #800;
+    font-weight: bold;
+}
+
+h1 a span{
+	text-decoration: none;
+	color: #800;
+}
+
+/* Non-IE only */
+html>body #wrapper {
+    margin: -28px auto 0;
+}
+
+h2 {
+    font-size: 100%;
+    font-weight: normal;
+	margin-left: 11%;
+    padding: 0 10px 0;
+}
+
+#content {
+    background: #fff;
+    width: 90%;
+    margin-left: 5%;
+    padding: 0px;
+    margin-top: 0;
+}
+
+#text {
+    background: #fff;
+    padding: 30px;
+    overflow: auto;
+    font-size: 90%;
+}
+
+#text a, #text a:visited {
+    color: #333;
+}
+
+
+#footer, #wrapper {
+    font-size: 75%;
+    background: #333;
+    width: 90%;
+    margin-left: 5%;
+    color: #fff;
+    padding: 1px 0 1px;
+    clear: both;
+}
+
+#footer {
+    padding: 10px 0 10px 0;
+    margin-bottom: 30px;
+}
+
+#footer p, #wrapper p  {
+    padding: 0 10px 0;
+}
+
+
+#footer a, #wrapper a, #footer a:visited, #wrapper a:visited {
+    color: #fff;
+}
+
+a, a:visited {
+    text-decoration: underline;
+}
+
+a:hover {
+    text-decoration: none;
+}
+
+#text a, table a:visited {
+    text-decoration: none;
+	border-bottom: 1px dotted #333;
+}
+
+#text a:hover {
+    text-decoration: none;
+	border-bottom: 1px solid #333;
+}
+
+span {
+    font-weight: bolder;
+}
+
+ul {
+    list-style-type: square;
+}
+
+.poweredby {
+    margin: 0 10px 0;
+    border: 0 solid;
+    float: right;
+}
+
+.error {
+    color: #800;
+    font-size: 120%;
+    line-height: 110%;
+}
+
+.odd {
+	background-color: #eee;
+}
+
+
+th {
+	background-color: #333;
+	color: #fff;
+	padding: 3px;
+}
+
+span.disabled-report {
+	color: #977;
+}
+
+#select-report-go-back,
+#report-changelinks {
+	margin-top: -15px;
+	float: right;
+	font-size: 75%;
+}

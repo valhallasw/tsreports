@@ -1,0 +1,35 @@
+%name Broken images
+%description
+Lists pages which link to images which don't exist on the local
+wiki or on commons.
+%end
+
+%category images
+%nightly
+
+%wikis
+no.wikipedia.org
+%end
+
+%query
+SELECT page_namespace, page_title, il_to
+	FROM imagelinks
+	JOIN page on page_id = il_from
+	WHERE
+# Not an image on the local wiki...
+		NOT EXISTS (SELECT * FROM image WHERE img_name = il_to)
+# Not an image on commons...
+		AND NOT EXISTS (SELECT * FROM commonswiki_p.image WHERE img_name = il_to)
+# Not a redirect on the local wiki...
+		AND NOT EXISTS (SELECT * FROM page WHERE page_namespace = 6
+					AND page_title = il_to)
+# Not a redirect on commons...
+		AND NOT EXISTS (SELECT * FROM commonswiki_p.page WHERE page_namespace = 6
+					AND page_title = il_to)
+	ORDER BY page_namespace ASC LIMIT 1000
+%end
+
+%fields
+page,	Title,		page_namespace, page_title
+image,	Image,		il_to
+%end

@@ -1,0 +1,26 @@
+%name Wiki loves Erfgoed: list of uploaders
+%category users
+cache 300
+%wikis
+commons.wikimedia.org
+%end
+%query
+SELECT 2 as page_namespace, img_user_text as page_title, count(img_user_text) as num_edits
+FROM image
+JOIN page
+  ON img_name=page_title
+JOIN categorylinks
+  ON page_id=cl_from
+WHERE
+  page_namespace = 6
+AND
+  page_is_redirect = 0
+AND
+  cl_to = 'Images_from_Wiki_Loves_Monuments'
+GROUP BY img_user_text
+ORDER BY COUNT(img_user_text) DESC;
+%end
+%fields
+page,		 User,	 page_namespace, page_title 
+number,          Number of uploads, num_edits
+%end

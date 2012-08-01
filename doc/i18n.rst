@@ -1,0 +1,5 @@
+i18n
+====
+Translations for the web interface. Translations for other languages should be based on the english message file:
+
+.. literalinclude :: ../i18n/en.msgs

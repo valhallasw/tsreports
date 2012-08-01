@@ -1,0 +1,41 @@
+## Copyright (c) 2008 River Tarnell <river@wikimedia.org>.  *#
+#*
+ * Permission is granted to anyone to use this software for any purpose,
+ * including commercial applications, and to alter it and redistribute it
+ * freely. This software is provided 'as-is', without any express or implied
+ * warranty.
+ *#
+#* $Id: QueryVariables.tmpl 10 2008-09-16 11:55:05Z river $ *#
+
+#from ReportBase import ReportBase
+#extends ReportBase
+
+#filter WebSafe
+
+#def title
+$i18n.fmt('qvar_title')
+#end def
+
+#def head
+<script type="text/javascript">
+var rep_dbname = "${wiki.dbname}";
+</script>
+#end def
+
+#def body
+	<p>$i18n.fmt('qvar_blurb')</p>
+
+	<form action="$context.docroot/" method="get">
+		<input type="hidden" name="wiki" value="${wiki.dbname}" />
+		<input type="hidden" name="report" value="${report.key}" />
+
+		#for $var in $variables
+			$var.format()
+			<br />
+		#end for
+
+		<input type="submit" value="$i18n.fmt('qvar_next')" />
+	</form>
+#end def
+
+#end filter

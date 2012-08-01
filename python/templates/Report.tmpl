@@ -1,0 +1,76 @@
+## Copyright (c) 2008 River Tarnell <river@wikimedia.org>.  *#
+#*
+ * Permission is granted to anyone to use this software for any purpose,
+ * including commercial applications, and to alter it and redistribute it
+ * freely. This software is provided 'as-is', without any express or implied
+ * warranty.
+ *#
+#* $Id$ *#
+
+#from ReportBase import ReportBase
+#extends ReportBase
+
+#filter WebSafe
+
+#def title
+$i18n.report_name($report) - $wiki.domain
+#end def
+
+#def head
+<script type="text/javascript" src="$context.docroot/sorttable.js"></script>
+#end def
+
+#def body
+	<p id="report-changelinks">
+		$i18n.fmthtml('report_changelinks', {
+			'changereport': $i18n.fmt('report_change_report', { 'url': $context.docroot + "/?wiki=" + $wiki.dbname } ),
+			'changewiki': $i18n.fmt('report_change_wiki', { 'url': $context.docroot + "/" })
+		})
+	</p>
+
+	## Show a notice if the report was cached.
+	#if $age > 0
+		<p>$i18n.fmt('report_wascached', { 'age': $i18n.format_duration($age) })</p>
+	#end if
+
+	## Show the variables (if any) used to generate the report.
+	#if len($report.variables) > 0
+		<p>$i18n.fmt('report_variables_used')</p>
+		<ul>
+		#for $name, $value in $variables.items()
+			<li>
+			$i18n.fmt('report_variable', { 'name': $name, 'value': $value })
+			</li>
+		#end for
+		</ul>
+	#end if
+
+	#if len($rows) > 0	
+		<table class="sortable">
+		<tr>
+		#for $header in $headers
+			<th>$header</th>
+		#end for
+		</tr>
+
+	#* 
+	 * Keep a count of the current row number.  This is used to provide
+	 * odd/even background colours for each row.
+	 *#
+		#set $n = 0
+		#for $row in $rows
+			<tr class="#if $n % 2 == 0 then 'even' else 'odd'#">
+			#for $field in $row
+				<td>$field.format()</td>
+			#end for
+			</tr>
+			#set $n = $n + 1
+		#end for
+
+		</table>
+	#else
+		<p>$i18n.fmt('report_noresults')</p>
+	#end if
+#end def
+
+#end filter

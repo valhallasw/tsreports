@@ -1,0 +1,29 @@
+%name Most linked-to pages
+%description
+Lists links to non-existant pages, in order of most links.
+This is identical to the MediaWiki Special:Mostlinked report, except it
+only lists the first 1,000 pages.
+%end
+
+%category articles
+%nightly
+
+IMPORTANT: This is an expensive query - do not enable it everywhere!
+           Only add it on smaller wikis.  Test the run time before
+           adding a new wiki here.
+
+%wikis
+ar.wikipedia.org
+%end
+
+%query
+SELECT pl_namespace, pl_title, COUNT(*) AS nlinks
+	FROM pagelinks
+	GROUP BY pl_namespace, pl_title
+	ORDER BY nlinks DESC LIMIT 1000
+%end
+
+%fields
+page,	Title,	pl_namespace, pl_title
+number,	Links,	nlinks
+%end

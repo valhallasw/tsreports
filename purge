@@ -1,0 +1,45 @@
+#! /usr/bin/env python
+# Copyright (c) 2008 River Tarnell <river@wikimedia.org>. 
+#
+# Permission is granted to anyone to use this software for any purpose,
+# including commercial applications, and to alter it and redistribute it
+# freely. This software is provided 'as-is', without any express or implied
+# warranty.
+#
+# $Id$
+
+import pwd, posix
+homedir = pwd.getpwuid(posix.getuid())[5]
+cfgfile = homedir + "/.reports.cfg"
+cfg = dict()
+execfile(cfgfile, cfg)
+cfg['homedir'] = homedir
+
+import sys
+sys.path.append(cfg['base'] + "/python")
+
+from Reports import ReportContext, Report
+from QueryCache import *
+
+context = ReportContext(cfg)
+cache = QueryCache(context)
+
+if len(sys.argv) < 2:
+	print "usage: %s key [domain]" % sys.argv[0]
+	sys.exit(1)
+
+reportname = sys.argv[1]
+if not context.reports.has_key(reportname):
+	print "report %s unknown" % reportname
+	sys.exit(1)
+
+report = context.reports[reportname]
+
+if len(sys.argv) == 2:
+	cache.purge_all(report)
+else:
+	wiki = repdb.find_wiki_domain(context, sys.argv[2])
+	if wiki == None:
+		print "wiki %s unknown" % sys.argv[2]
+		sys.exit(1)
+	cache.purge(wiki['dbname'], report)

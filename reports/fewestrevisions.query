@@ -1,0 +1,32 @@
+%name Pages with fewest revisions
+%description
+Lists the 1,000 pages with the fewest revisions.  This is the same as
+the MediaWiki:FewestRevisions page, with one difference: while FewestRevisions
+excludes pages with only one edit, this report includes those pages, but
+excludes redirects.
+%end
+
+%category articles
+%nightly
+
+IMPORTANT: This is an expensive query - do not enable it everywhere!
+           Only add it on smaller wikis.  Test the run time before
+           adding a new wiki here.
+
+%wikis
+ar.wikipedia.org
+%end
+
+%query
+SELECT page_namespace, page_title, COUNT(*) AS nrevs
+	FROM revision, page
+	WHERE	page_namespace = 0
+		AND page_id = rev_page
+	GROUP BY page_namespace, page_title
+	ORDER BY nrevs ASC LIMIT 1000
+%end
+
+%fields
+page,		Title,		page_namespace, page_title
+number,		Revisions,	nrevs
+%end

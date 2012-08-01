@@ -1,0 +1,23 @@
+%name Images duplicated on commons
+%description
+A list of images which exist on both this wiki and commons.wikimedia.org.  The
+images are compared using content, not filename.
+%end
+
+%cache 600
+
+%category images
+
+This query is from: https://wiki.toolserver.org/view/Query_service/5
+%query
+SELECT commons.img_name AS commonsname, localwiki.img_name AS localname
+	FROM commonswiki_p.image commons, image localwiki
+	WHERE commons.img_sha1 = localwiki.img_sha1
+	AND localwiki.img_sha1 != ''
+	ORDER BY localname ASC LIMIT 1000
+%end
+
+%fields
+image,		Local image,	localname
+other_image,	Commons image,	commonsname,	commons.wikimedia.org
+%end

@@ -1,0 +1,52 @@
+## Copyright (c) 2008 River Tarnell <river@wikimedia.org>.  *#
+#*
+ * Permission is granted to anyone to use this software for any purpose,
+ * including commercial applications, and to alter it and redistribute it
+ * freely. This software is provided 'as-is', without any express or implied
+ * warranty.
+ *#
+#* $Id: ReportBase.tmpl 69 2008-09-19 02:21:15Z river $ *#
+
+#def Title
+No title
+#end def
+
+#def head
+#end def
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+ "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+	<head>
+		<title>$title - tsreport</title>
+		<link rel="stylesheet" href="common.css" type="text/css">
+		<link rel="stylesheet" type="text/css" href="$context.docroot/jquery.autocomplete.css" />
+		<script type="text/javascript" src="$context.docroot/jquery.js"></script>
+		<script type="text/javascript" src="$context.docroot/jquery.autocomplete.js"></script>
+		<script type="text/javascript" src="$context.docroot/reports.js"></script>
+		<script type="text/javascript">
+		var rep_docroot = "$context.docroot";
+		</script>
+		$head
+	</head>
+		<body>
+#if $context.sitenotice != None
+		<div id="sitenotice">$context.sitenotice</div>
+#end if
+		<div id="header"><h1><a href="$context.docroot">ts<span>report</span></a></h1></div>
+		<div id="wrapper"><h2>$title</h2></div>
+		<div id="content"><div id="text">
+		$body
+		</div></div>
+		<div id="footer">
+		<a href="http://toolserver.org/"><img src="http://toolserver.org/images/wikimedia-toolserver-button.png" class="poweredby" width="88px" height="31px" /></a>
+		#* The JIRA | Bugs | wiki links *#
+		<p>
+		${i18n.fmthtml('base_links', {
+			'prefslink': $i18n.fmt('base_prefslink'),
+			'jiralink': $i18n.fmt('base_jiralink'),
+			'wikilink': $i18n.fmt('base_wikilink')
+		})}
+		</p></div>		
+	</body>
+</html>
