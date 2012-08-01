@@ -83,6 +83,15 @@ class QueryCache:
         return (0, result)
    
     def update_report(self, dbname, report, variables):
+        db = repdb.connect_cache(self.context)
+        c = db.cursor()
+        self.check_create_row(c, dbname, report.key)
+        c.execute("""UPDATE report_cache
+                     SET last_start=UNIX_TIMESTAMP()
+                     WHERE dbname=%s AND report_key=%s""",
+                     (dbname, report.key))
+        db.commit()
+
         result = report.execute(self.context, dbname, variables)
         self.save(dbname, report, pickle.dumps(result))
         return result
