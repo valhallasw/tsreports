@@ -9,6 +9,7 @@
 
 import pickle, MySQLdb
 import repdb
+import threading
 
 class QueryCache:
     def __init__(self, context):
@@ -25,8 +26,14 @@ class QueryCache:
        
         r = c.fetchone()
         if r == None:
-            return None
-        return (r[0], r[1])
+            return None, None
+
+        try:
+            data = pickle.loads(r[1])
+        except Exception:
+            return None, None
+
+        return (r[0], data)
 
     def check_create_row(self, cursor, dbname, report_key):
          cursor.execute("""INSERT IGNORE INTO report_cache (dbname, report_key)
@@ -38,7 +45,9 @@ class QueryCache:
         db = repdb.connect_cache(self.context)
         c = db.cursor()
         self.check_create_row(c, dbname, report.key)
-        
+    
+        data = pickle.dumps(data)
+
         c.execute("""UPDATE report_cache
                      SET last_run=UNIX_TIMESTAMP(), result=%s
                      WHERE dbname=%s AND report_key=%s""",
@@ -65,28 +74,48 @@ class QueryCache:
     def execute(self, report, dbname, variables, force = False):
         """Like Report.execute(), except load/save from the cache as appropriate"""
         if not report.cachable():
-            return {'age': 0,
+            return {'status': 'fresh',
+                    'age': 0,
                     'result': report.execute(self.context, dbname, variables)}
             
         # Try cache load
         if not force:
-            result = self.load(dbname, report)
-            if (result != None) and \
-               (result[0] < report.cache):
-                try:
-                    data = pickle.loads(result[1])
-                except Exception:
-                    pass
+            age, result = self.load(dbname, report)
+            if (result != None):
+                if age < report.cache:
+                    return {'status': 'hot', 'age': age, 'result': result}
                 else:
-                    return {'age': result[0], 'result': result}
-        
+                    status = self.run_background_update(dbname, report, variables)
+                    return {'status': status, 'age': age, 'result': result}
+
             # Not cached; if it's a nightly query, return failure
             if report.nightly:
-                return None
+                return {'status': 'unavailable'}
 
         result = self.update_report(dbname, report, variables)
-        return {'age': 0, 'result': result}
+        return {'status': 'fresh', 'age': 0, 'result': result}
    
+    def run_background_update(self, dbname, report, variables):
+        db = repdb.connect_cache(self.context)
+        c = db.cursor()
+        self.check_create_row(c, dbname, report.key)
+        c.execute("""SELECT UNIX_TIMESTAMP() - last_start
+                     FROM report_cache
+                     WHERE dbname=%s AND report_key=%s""",
+                     (dbname, report.key))
+        time_since_last_start, = c.fetchone()
+
+        def regenerator():
+            self.update_report(dbname, report, variables)
+
+        if time_since_last_start is None or \
+           time_since_last_start > report.cache:
+            threading.Thread(target=regenerator).start()
+            return 'cold, regeneration started (%i)' % time_since_last_start
+        else:
+            return 'cold, regeneration in progress (%i)' % time_since_last_start
+
+
     def update_report(self, dbname, report, variables):
         db = repdb.connect_cache(self.context)
         c = db.cursor()
@@ -98,7 +127,7 @@ class QueryCache:
         db.commit()
 
         result = report.execute(self.context, dbname, variables)
-        self.save(dbname, report, pickle.dumps(result))
+        self.save(dbname, report, result)
         return result
 
     def check_cache(self, dbname, reports):

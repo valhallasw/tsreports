@@ -60,7 +60,8 @@ def response(context, req):
 
     cache = QueryCache(context)
     cache_result = cache.execute(report, dbname, variables)
-    if cache_result == None:
+    status = cache_result['status']
+    if status == 'unavailable':
         t = req.prepare_template(CachedReportUnavailable)
         t.report = report
         output = str(t)
@@ -70,13 +71,13 @@ def response(context, req):
 
     age = cache_result['age']
     result = cache_result['result']
-
     fields = report.fields
 
     t = req.prepare_template(Report)
     t.age = age
     t.report = report
     t.wiki = wiki
+    t.status = status
 
     # Generate a list of variables + values for the report page
     t.variables = {}
