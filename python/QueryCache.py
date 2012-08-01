@@ -72,8 +72,12 @@ class QueryCache:
             result = self.load(dbname, report)
             if (result != None) and \
                (result[0] < report.cache):
-                data = pickle.loads(result[1])
-                return (result[0], data)
+                try:
+                    data = pickle.loads(result[1])
+                except Exception:
+                    pass
+                else:
+                    return (result[0], data)
         
             # Not cached; if it's a nightly query, return failure
             if report.nightly:
