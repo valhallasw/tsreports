@@ -19,15 +19,10 @@ class QueryCache:
         db = repdb.connect_cache(self.context)
         c = db.cursor()
     
-        if report.nightly:
-            c.execute("""SELECT (UNIX_TIMESTAMP() - last_run), result 
+        c.execute("""SELECT (UNIX_TIMESTAMP() - last_run), result 
                     FROM report_cache 
                     WHERE report_key=%s AND dbname=%s""", (report.key, dbname))
-        else:
-            c.execute("""SELECT (UNIX_TIMESTAMP() - last_run), result 
-                    FROM report_cache 
-                    WHERE (UNIX_TIMESTAMP() - last_run) <= %s AND report_key=%s AND dbname=%s""",
-                    (report.cache, report.key, dbname))
+       
         r = c.fetchone()
         if r == None:
             return None
@@ -73,7 +68,8 @@ class QueryCache:
         # Try cache load
         if not force:
             result = self.load(dbname, report)
-            if result != None:
+            if (result != None) and \
+               (result[0] < report.cache):
                 data = pickle.loads(result[1])
                 return (result[0], data)
         
