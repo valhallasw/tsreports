@@ -77,10 +77,14 @@ class QueryCache:
             if report.nightly:
                 return None
 
+        result = self.update_report(dbname, report, variables)
+        return (0, result)
+   
+    def update_report(self, dbname, report, variables):
         result = report.execute(self.context, dbname, variables)
         self.save(dbname, report, pickle.dumps(result))
-        return (0, result)
-    
+        return result
+
     def check_cache(self, dbname, reports):
         """Given a list of reports, return a list of those which are uncached
            %nightly queries."""
