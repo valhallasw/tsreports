@@ -1,3 +1,7 @@
+# tsreports specific
+jsmin
+
+# Python
 *.py[co]
 
 # Packages
