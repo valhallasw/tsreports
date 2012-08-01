@@ -68,8 +68,8 @@ def response(context, req):
         yield output
         return
 
-    age = cache_result[0]
-    result = cache_result[1]
+    age = cache_result['age']
+    result = cache_result['result']
 
     fields = report.fields
 

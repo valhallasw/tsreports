@@ -65,7 +65,8 @@ class QueryCache:
     def execute(self, report, dbname, variables, force = False):
         """Like Report.execute(), except load/save from the cache as appropriate"""
         if not report.cachable():
-            return (0, report.execute(self.context, dbname, variables))
+            return {'age': 0,
+                    'result': report.execute(self.context, dbname, variables)}
             
         # Try cache load
         if not force:
@@ -77,14 +78,14 @@ class QueryCache:
                 except Exception:
                     pass
                 else:
-                    return (result[0], data)
+                    return {'age': result[0], 'result': result}
         
             # Not cached; if it's a nightly query, return failure
             if report.nightly:
                 return None
 
         result = self.update_report(dbname, report, variables)
-        return (0, result)
+        return {'age': 0, 'result': result}
    
     def update_report(self, dbname, report, variables):
         db = repdb.connect_cache(self.context)
