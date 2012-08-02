@@ -6,15 +6,7 @@ only lists the first 1,000 pages.
 %end
 
 %category articles
-%nightly
-
-IMPORTANT: This is an expensive query - do not enable it everywhere!
-           Only add it on smaller wikis.  Test the run time before
-           adding a new wiki here.
-
-%wikis
-ar.wikipedia.org
-%end
+%cache 604800
 
 %query
 SELECT pl_namespace, pl_title, COUNT(*) AS nlinks

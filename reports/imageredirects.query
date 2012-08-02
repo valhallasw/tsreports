@@ -4,11 +4,7 @@ Lists pages which link to redirects to images.
 %end
 
 %category images
-%nightly
-
-%wikis
-no.wikipedia.org
-%end
+%cache 604800
 
 %query
 SELECT p1.page_namespace pagens, p1.page_title pagetitle, il_to redirname
