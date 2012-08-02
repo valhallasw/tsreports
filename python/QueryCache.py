@@ -85,13 +85,19 @@ class QueryCache:
                 if age < report.cache:
                     return {'status': 'hot', 'age': age, 'result': result}
                 else:
-                    status, query_runtime = self.run_background_update(dbname, report, variables)
-                    return {'status': status, 'query runtime': query_runtime, 
+                    query_runtime = self.run_background_update(dbname, report, variables)
+                    return {'status': 'cold', 'query runtime': query_runtime, 
                             'age': age, 'result': result}
 
-            # Not cached; if it's a nightly query, return failure
+            # No cached value exists; if it's a nightly query, return failure
             if report.nightly:
                 return {'status': 'unavailable'}
+            else:
+                query_runtime = self.run_background_update(dbname, report, variables)
+                return {'status': 'first', 'query runtime': query_runtime, 
+                        'age': age, 'result': result}
+
+               
 
         result = self.update_report(dbname, report, variables)
         return {'status': 'fresh', 'age': 0, 'result': result}
@@ -112,9 +118,9 @@ class QueryCache:
         if time_since_last_start is None or \
            time_since_last_start > report.cache:
             threading.Thread(target=regenerator).start()
-            return ('cold', 0)
+            return 0
         else:
-            return ('cold', time_since_last_start)
+            return time_since_last_start
 
 
     def update_report(self, dbname, report, variables):

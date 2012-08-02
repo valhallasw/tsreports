@@ -17,7 +17,18 @@ $i18n.report_name($report)
 #end def
 
 #def body
-	<p>$i18n.fmt('report_nocache')</p>
+	<p>
+	#if $status == 'first'
+		$i18n.fmt('report_first_run')
+		#if $query_runtime > 0
+			$i18n.fmt('report_cold_cache_running', {'runtime': $i18n.format_duration($query_runtime) })
+		#else
+			$i18n.fmt('report_cold_cache_started')
+		#end if
+	#else
+		$i18n.fmt('report_nocache')
+	#end if
+	</p>
 #end def
 
 #end filter
