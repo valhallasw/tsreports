@@ -5,11 +5,7 @@ wiki or on commons.
 %end
 
 %category images
-%nightly
-
-%wikis
-no.wikipedia.org
-%end
+%cache 604800
 
 %query
 SELECT page_namespace, page_title, il_to
