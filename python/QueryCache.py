@@ -89,9 +89,15 @@ class QueryCache:
                     return {'status': 'cold', 'query runtime': query_runtime, 
                             'age': age, 'result': result}
 
-            # Not cached; if it's a nightly query, return failure
+            # No cached value exists; if it's a nightly query, return failure
             if report.nightly:
                 return {'status': 'unavailable'}
+            else:
+                query_runtime = self.run_background_update(dbname, report, variables)
+                return {'status': 'first', 'query runtime': query_runtime, 
+                        'age': age, 'result': result}
+
+               
 
         result = self.update_report(dbname, report, variables)
         return {'status': 'fresh', 'age': 0, 'result': result}

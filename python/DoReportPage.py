@@ -61,8 +61,12 @@ def response(context, req):
     cache = QueryCache(context)
     cache_result = cache.execute(report, dbname, variables)
     status = cache_result['status']
-    if status == 'unavailable':
+    if status == 'unavailable' or status == 'first':
         t = req.prepare_template(CachedReportUnavailable)
+        t.status = status
+        if status == 'first':
+            t.query_runtime = cache_result['query runtime']
+
         t.report = report
         output = str(t)
         req.start_response('200 OK', [('Content-Type', 'text/html; charset=UTF-8')])
