@@ -79,6 +79,9 @@ def response(context, req):
     t.wiki = wiki
     t.status = status
 
+    if status == 'cold':
+        t.query_runtime = cache_result['query runtime']
+
     # Generate a list of variables + values for the report page
     t.variables = {}
     for v in report.variables:
