@@ -29,10 +29,18 @@ $i18n.report_name($report) - $wiki.domain
 	</p>
 
 	## Show a notice if the report was cached.
+	<p>
 	#if $age > 0
-		<p>$i18n.fmt('report_wascached', { 'age': $i18n.format_duration($age) })</p>
+		$i18n.fmt('report_wascached', { 'age': $i18n.format_duration($age) })
 	#end if
-
+	#if $status == 'cold'
+		#if $query_runtime > 0
+			$i18n.fmt('report_cold_cache_running', {'runtime': $i18n.format_duration($query_runtime) })
+		#else
+			$i18n.fmt('report_cold_cache_started')
+		#end if
+	#end if
+	</p>
 	## Show the variables (if any) used to generate the report.
 	#if len($report.variables) > 0
 		<p>$i18n.fmt('report_variables_used')</p>

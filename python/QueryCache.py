@@ -9,6 +9,7 @@
 
 import pickle, MySQLdb
 import repdb
+import threading
 
 class QueryCache:
     def __init__(self, context):
@@ -19,27 +20,40 @@ class QueryCache:
         db = repdb.connect_cache(self.context)
         c = db.cursor()
     
-        if report.nightly:
-            c.execute("""SELECT (UNIX_TIMESTAMP() - last_run), result 
+        c.execute("""SELECT (UNIX_TIMESTAMP() - last_run), result 
                     FROM report_cache 
                     WHERE report_key=%s AND dbname=%s""", (report.key, dbname))
-        else:
-            c.execute("""SELECT (UNIX_TIMESTAMP() - last_run), result 
-                    FROM report_cache 
-                    WHERE (UNIX_TIMESTAMP() - last_run) <= %s AND report_key=%s AND dbname=%s""",
-                    (report.cache, report.key, dbname))
+       
         r = c.fetchone()
         if r == None:
-            return None
-        return (r[0], r[1])
+            return None, None
 
+        try:
+            data = pickle.loads(r[1])
+        except Exception:
+            return None, None
+
+        return (r[0], data)
+
+    def check_create_row(self, cursor, dbname, report_key):
+         cursor.execute("""INSERT IGNORE INTO report_cache (dbname, report_key)
+                     VALUES(%s, %s)""",
+                  (dbname, report_key))
+    
     def save(self, dbname, report, data):
         """Save the result of a query to the cache"""
         db = repdb.connect_cache(self.context)
         c = db.cursor()
-        c.execute("""REPLACE INTO report_cache (dbname, report_key, last_run, result) 
-                VALUES(%s, %s, UNIX_TIMESTAMP(), %s)""",
-                (dbname, report.key, data))
+        self.check_create_row(c, dbname, report.key)
+    
+        data = pickle.dumps(data)
+
+        c.execute("""UPDATE report_cache
+                     SET last_run=UNIX_TIMESTAMP(), result=%s
+                     WHERE dbname=%s AND report_key=%s""",
+                     (data, dbname, report.key)
+                 )
+       
         db.commit()
     
     def purge(self, dbname, report):
@@ -60,23 +74,63 @@ class QueryCache:
     def execute(self, report, dbname, variables, force = False):
         """Like Report.execute(), except load/save from the cache as appropriate"""
         if not report.cachable():
-            return (0, report.execute(self.context, dbname, variables))
+            return {'status': 'fresh',
+                    'age': 0,
+                    'result': report.execute(self.context, dbname, variables)}
             
         # Try cache load
         if not force:
-            result = self.load(dbname, report)
-            if result != None:
-                data = pickle.loads(result[1])
-                return (result[0], data)
-        
+            age, result = self.load(dbname, report)
+            if (result != None):
+                if age < report.cache:
+                    return {'status': 'hot', 'age': age, 'result': result}
+                else:
+                    status, query_runtime = self.run_background_update(dbname, report, variables)
+                    return {'status': status, 'query runtime': query_runtime, 
+                            'age': age, 'result': result}
+
             # Not cached; if it's a nightly query, return failure
             if report.nightly:
-                return None
+                return {'status': 'unavailable'}
+
+        result = self.update_report(dbname, report, variables)
+        return {'status': 'fresh', 'age': 0, 'result': result}
+   
+    def run_background_update(self, dbname, report, variables):
+        db = repdb.connect_cache(self.context)
+        c = db.cursor()
+        self.check_create_row(c, dbname, report.key)
+        c.execute("""SELECT UNIX_TIMESTAMP() - last_start
+                     FROM report_cache
+                     WHERE dbname=%s AND report_key=%s""",
+                     (dbname, report.key))
+        time_since_last_start, = c.fetchone()
+
+        def regenerator():
+            self.update_report(dbname, report, variables)
+
+        if time_since_last_start is None or \
+           time_since_last_start > report.cache:
+            threading.Thread(target=regenerator).start()
+            return ('cold', 0)
+        else:
+            return ('cold', time_since_last_start)
+
+
+    def update_report(self, dbname, report, variables):
+        db = repdb.connect_cache(self.context)
+        c = db.cursor()
+        self.check_create_row(c, dbname, report.key)
+        c.execute("""UPDATE report_cache
+                     SET last_start=UNIX_TIMESTAMP()
+                     WHERE dbname=%s AND report_key=%s""",
+                     (dbname, report.key))
+        db.commit()
 
         result = report.execute(self.context, dbname, variables)
-        self.save(dbname, report, pickle.dumps(result))
-        return (0, result)
-    
+        self.save(dbname, report, result)
+        return result
+
     def check_cache(self, dbname, reports):
         """Given a list of reports, return a list of those which are uncached
            %nightly queries."""
