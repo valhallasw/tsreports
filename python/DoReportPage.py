@@ -78,6 +78,7 @@ def response(context, req):
     fields = report.fields
 
     t = req.prepare_template(Report)
+    t.last_run_duration = cache_result.get('last_run_duration', None)
     t.age = age
     t.report = report
     t.wiki = wiki

@@ -41,6 +41,7 @@ report_cold_cache_running Cache (re)generation started %(runtime)s ago.
 report_cold_cache_started Cache (re)generation has just started.
 report_nocache This report is scheduled to be regenerated nightly, but hasn't been run yet, so there is no data available.
 report_first_run This report is being generated for the first time, so no data is available yet.
+report_last_run_duration This report was generated in %(duration)s.
 report_variables_used The following variables were used to generate this report:
 report_variable %(name)s: %(value)s
 report_noresults Sorry, this report produced no results.
