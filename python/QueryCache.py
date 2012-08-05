@@ -9,7 +9,7 @@
 
 import pickle, MySQLdb
 import repdb
-import threading
+from multiprocessing import Process
 
 class QueryCache:
     def __init__(self, context):
@@ -103,6 +103,8 @@ class QueryCache:
         return {'status': 'fresh', 'age': 0, 'result': result}
    
     def run_background_update(self, dbname, report, variables):
+        import QueryWorker
+
         db = repdb.connect_cache(self.context)
         c = db.cursor()
         self.check_create_row(c, dbname, report.key)
@@ -111,13 +113,11 @@ class QueryCache:
                      WHERE dbname=%s AND report_key=%s""",
                      (dbname, report.key))
         time_since_last_start, = c.fetchone()
-
-        def regenerator():
-            self.update_report(dbname, report, variables)
-
+       
         if time_since_last_start is None or \
            time_since_last_start > report.cache:
-            threading.Thread(target=regenerator).start()
+            p = Process(target=QueryWorker.update_report, args=(dbname, report, variables))
+            p.start()
             return 0
         else:
             return time_since_last_start
