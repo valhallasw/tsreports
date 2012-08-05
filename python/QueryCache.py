@@ -20,20 +20,20 @@ class QueryCache:
         db = repdb.connect_cache(self.context)
         c = db.cursor()
     
-        c.execute("""SELECT (UNIX_TIMESTAMP() - last_run), result 
+        c.execute("""SELECT (UNIX_TIMESTAMP() - last_run), result, last_run_duration
                     FROM report_cache 
                     WHERE report_key=%s AND dbname=%s""", (report.key, dbname))
        
         r = c.fetchone()
         if r == None:
-            return None, None
+            return None, None, None
 
         try:
             data = pickle.loads(r[1])
         except Exception:
-            return None, None
+            return None, None, None
 
-        return (r[0], data)
+        return (r[0], data, r[2])
 
     def check_create_row(self, cursor, dbname, report_key):
          cursor.execute("""INSERT IGNORE INTO report_cache (dbname, report_key)
@@ -80,14 +80,14 @@ class QueryCache:
             
         # Try cache load
         if not force:
-            age, result = self.load(dbname, report)
+            age, result, last_run_duration = self.load(dbname, report)
             if (result != None):
                 if age < report.cache:
-                    return {'status': 'hot', 'age': age, 'result': result}
+                    return {'status': 'hot', 'age': age, 'result': result, 'last_run_duration': last_run_duration}
                 else:
                     query_runtime = self.run_background_update(dbname, report, variables)
                     return {'status': 'cold', 'query runtime': query_runtime, 
-                            'age': age, 'result': result}
+                            'age': age, 'result': result, 'last_run_duration': last_run_duration}
 
             # No cached value exists; if it's a nightly query, return failure
             if report.nightly:

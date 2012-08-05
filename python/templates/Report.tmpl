@@ -40,6 +40,9 @@ $i18n.report_name($report) - $wiki.domain
 			$i18n.fmt('report_cold_cache_started')
 		#end if
 	#end if
+	#if $last_run_duration
+		$i18n.fmt('report_last_run_duration', {'duration': $i18n.format_duration($last_run_duration) })
+	#end if
 	</p>
 	## Show the variables (if any) used to generate the report.
 	#if len($report.variables) > 0
