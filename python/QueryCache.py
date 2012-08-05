@@ -49,7 +49,7 @@ class QueryCache:
         data = pickle.dumps(data)
 
         c.execute("""UPDATE report_cache
-                     SET last_run=UNIX_TIMESTAMP(), result=%s
+                     SET last_run=UNIX_TIMESTAMP(), last_run_duration=UNIX_TIMESTAMP()-last_start, result=%s
                      WHERE dbname=%s AND report_key=%s""",
                      (data, dbname, report.key)
                  )
