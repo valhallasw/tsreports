@@ -25,6 +25,7 @@ class Report:
         self.description_i18n = {}
         self.cache=None
         self.query=None
+        self.dynamiccache=False
         self.nightly = False
         self.category='Miscellaneous'
         self.wikis = None
@@ -74,6 +75,11 @@ class Report:
 
             elif sec[0] == 'cache':
                 self.cache = int(sec[1])
+
+            elif sec[0] == 'dynamiccache':
+                self.dynamiccache = int(sec[1])
+                if not self.cache:
+                    self.cache = 3600*24*7 # one week
 
             elif sec[0] == 'nightly':
                 self.nightly = True
