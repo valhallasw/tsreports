@@ -5,7 +5,7 @@ wiki or on commons.
 %end
 
 %category images
-%cache 604800
+%dynamiccache 100
 
 %query
 SELECT page_namespace, page_title, il_to

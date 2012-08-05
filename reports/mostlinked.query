@@ -6,7 +6,7 @@ only lists the first 1,000 pages.
 %end
 
 %category articles
-%cache 604800
+%dynamiccache 100
 
 %query
 SELECT pl_namespace, pl_title, COUNT(*) AS nlinks

@@ -4,7 +4,7 @@ Lists pages which link to templates which don't exist.
 %end
 
 %category articles
-%cache 600
+%dynamiccache 100
 
 %query
 SELECT P.page_namespace, P.page_title, tl_namespace, tl_title

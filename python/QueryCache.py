@@ -71,18 +71,25 @@ class QueryCache:
         c.execute("DELETE FROM report_cache WHERE report_key = %s", report.key)
         db.commit()
 
+    def expired(self, report, age, last_duration):
+        if report.dynamiccache and last_duration:
+            return (age > report.dynamiccache * last_duration)
+        if report.cache:
+            return (age > report.cache)
+        return True
+
     def execute(self, report, dbname, variables, force = False):
         """Like Report.execute(), except load/save from the cache as appropriate"""
         if not report.cachable():
             return {'status': 'fresh',
                     'age': 0,
                     'result': report.execute(self.context, dbname, variables)}
-            
+
         # Try cache load
         if not force:
             age, result, last_run_duration = self.load(dbname, report)
             if (result != None):
-                if age < report.cache:
+                if not self.expired(report, age, last_run_duration):
                     return {'status': 'hot', 'age': age, 'result': result, 'last_run_duration': last_run_duration}
                 else:
                     query_runtime = self.run_background_update(dbname, report, variables)
@@ -97,25 +104,32 @@ class QueryCache:
                 return {'status': 'first', 'query runtime': query_runtime, 
                         'age': age, 'result': result}
 
-               
+
 
         result = self.update_report(dbname, report, variables)
         return {'status': 'fresh', 'age': 0, 'result': result}
-   
+
     def run_background_update(self, dbname, report, variables):
         import QueryWorker
 
         db = repdb.connect_cache(self.context)
         c = db.cursor()
         self.check_create_row(c, dbname, report.key)
-        c.execute("""SELECT UNIX_TIMESTAMP() - last_start
+        c.execute("""SELECT UNIX_TIMESTAMP() - last_run, UNIX_TIMESTAMP() - last_start
                      FROM report_cache
                      WHERE dbname=%s AND report_key=%s""",
                      (dbname, report.key))
-        time_since_last_start, = c.fetchone()
+        time_since_last_finish, time_since_last_start = c.fetchone()
        
+        # This function is called when the caller determined a query should be
+        # running. To do this, we start a query worker if
+        # a) the query has never been run, or
+        # b) the query has started before, but probably never finished (determined by the cache time), or
+        # c) the query has finished successfully
+
         if time_since_last_start is None or \
-           time_since_last_start > report.cache:
+           time_since_last_start > report.cache or \
+           (time_since_last_finish is not None and time_since_last_finish < time_since_last_start):
             p = Process(target=QueryWorker.logging_update_report, args=(dbname, report, variables))
             p.start()
             return 0

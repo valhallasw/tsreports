@@ -1,6 +1,6 @@
 %name Wiki loves Erfgoed: list of uploaders
 %category users
-%cache 300
+%dynamiccache 100
 %wikis
 commons.wikimedia.org
 %end
