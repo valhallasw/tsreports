@@ -116,7 +116,7 @@ class QueryCache:
        
         if time_since_last_start is None or \
            time_since_last_start > report.cache:
-            p = Process(target=QueryWorker.update_report, args=(dbname, report, variables))
+            p = Process(target=QueryWorker.logging_update_report, args=(dbname, report, variables))
             p.start()
             return 0
         else:
