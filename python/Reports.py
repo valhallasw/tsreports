@@ -34,7 +34,10 @@ class Report:
         self.fields = []
         self.variables = []
         self.load()
-    
+   
+    def __repr__(self):
+        return 'Report(%r, %r)' % (self.key, self.file)
+
     def load(self):
         with codecs.open(self.file, 'r', 'UTF-8') as f:
             sections = QueryReader.read(f)
