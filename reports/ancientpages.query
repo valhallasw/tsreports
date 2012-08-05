@@ -6,7 +6,7 @@ oldest 1,000 pages.
 %end
 
 %category articles
-%cache 604800
+%dynamiccache 100
 
 %query
 SELECT page_namespace, page_title, rev_timestamp

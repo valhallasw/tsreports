@@ -6,10 +6,7 @@ only lists the first 1,000 pages.
 %end
 
 %category articles
-%cache 604800
-
-IMPORTANT: This is an expensive query - it uses *heavy* caching (one week) due
-to the runtime (30 minutes for nlwiki, expected to be a few hours for enwiki).
+%dynamiccache 100
 
 %query
 SELECT pl_namespace, pl_title, COUNT(*) AS nlinks

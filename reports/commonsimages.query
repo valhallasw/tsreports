@@ -4,7 +4,7 @@ A list of images which exist on both this wiki and commons.wikimedia.org.  The
 images are compared using content, not filename.
 %end
 
-%cache 600
+%dynamiccache 100
 
 %category images
 
