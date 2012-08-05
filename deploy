@@ -21,6 +21,9 @@ if [[ ! -f $HOME/.reports.cfg ]]; then
 fi
 INSTALLDIR=$(python -c "execfile(\"$HOME/.reports.cfg\", globals()); print base")
 WWW=$(python -c "execfile(\"$HOME/.reports.cfg\", globals()); print htmldir")
+DATABASE=$(python -c  "execfile(\"$HOME/.reports.cfg\", globals()); print database")
+DBSERVER=$(python -c  "execfile(\"$HOME/.reports.cfg\", globals()); print dbserver")
+
 
 mkdir -p $WWW $INSTALLDIR
 mkdir -p $INSTALLDIR/bin
@@ -56,7 +59,10 @@ done
 echo "Copying i18n files..."
 find i18n \! -name '.*' | grep -v '\.svn' | cpio -Vpdm $WWW || true
 
+mysql -N -h $DBSERVER $DATABASE < reports.sql 
+
 echo "Restarting FCGIs..."
 for x in $(cd fcgi; echo *); do
 	pkill -USR1 -f $WWW/$x
 done
+
