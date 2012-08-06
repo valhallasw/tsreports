@@ -123,7 +123,10 @@ class Report:
     def execute(self, context, dbname, variables):
         db = repdb.connect_wiki(context, dbname)
         c = db.cursor()
-        c.execute(self.query, variables)
+        import re
+        esc_report_title = re.sub(r"[^A-Za-z0-9_@]", "_", "%s@%s" % (self.key, dbname))
+        comment = "/* %s SLOW_OK LIMIT:86400 */" % esc_report_title
+        c.execute(comment + self.query, variables)
         desc = c.description
 
         res = []
