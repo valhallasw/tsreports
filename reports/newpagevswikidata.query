@@ -4,7 +4,7 @@ Lists up to 1,000 new pages that do not have a linked WikiData page yet.
 %end
 
 %category wikidata
-%dynamiccache 120
+%dynamiccache 20
 
 %query
 SELECT page_namespace, page_title
