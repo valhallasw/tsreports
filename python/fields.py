@@ -129,3 +129,59 @@ class NumberField(Field):
     
     def format(self, keys, lang):
         return cgi.escape(lang.format_number(int(keys[self.field])), True)
+
+class WikiData_SearchField(Field):
+    """A field that returns a search on WikiData for a formatted page name.
+    """
+    def __init__(self, params):
+        Field.__init__(self, params)
+        self.nsfield = params[1]
+        self.titlefield = params[2]
+    
+    def format(self, keys, lang):
+        ns = keys[self.nsfield]
+
+        title = ''
+        if ns != 0:
+            nslist = keys['__namespaces__']
+
+            if nslist.has_key(ns):
+                nsname = nslist[ns]
+            else:
+                nsname = str(ns)
+            title = nsname + ":" + keys[self.titlefield]
+        else:
+            title = keys[self.titlefield]
+
+        return """<a href="//www.wikidata.org/w/index.php?search=%s">(search)</a>""" % (
+            urllib.quote(title.replace("_", " ").encode('utf-8'), safe='/:'),)
+
+class WikiData_CreateField(Field):
+    """A field that returns a formatted page name.  Takes two params:
+       the namespace field name and the title field name.
+    """
+    def __init__(self, params):
+        Field.__init__(self, params)
+        self.nsfield = params[1]
+        self.titlefield = params[2]
+    
+    def format(self, keys, lang):
+        ns = keys[self.nsfield]
+
+        title = ''
+        if ns != 0:
+            nslist = keys['__namespaces__']
+
+            if nslist.has_key(ns):
+                nsname = nslist[ns]
+            else:
+                nsname = str(ns)
+            title = nsname + ":" + keys[self.titlefield]
+        else:
+            title = keys[self.titlefield]
+
+        domain = keys['__domain__']
+        return """<a href="//www.wikidata.org/w/index.php?title=Special:NewItem&site=%s&page=%s">(create item)</a>""" % (
+            cgi.escape(keys["__dbname__"][:-2]),
+            urllib.quote(title.encode('utf-8'), safe='/:'), 
+            )

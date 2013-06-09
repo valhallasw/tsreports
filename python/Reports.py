@@ -98,7 +98,9 @@ class Report:
                         'number': NumberField,
                         'page': PageField,
                         'image': ImageField,
-                        'other_image': OtherImageField, } [fs[0]]
+                        'other_image': OtherImageField,
+                        'wikidata_search': WikiData_SearchField,
+                        'wikidata_create': WikiData_CreateField} [fs[0]]
                     self.fields.append(cl(fs[1:]))
 
             elif sec[0] == "variable":

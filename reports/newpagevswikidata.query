@@ -27,4 +27,6 @@ LIMIT 1000;
 
 %fields
 page,		Title,		page_namespace, page_title
+wikidata_search, Search WikiData, page_namespace, page_title
+wikidata_create, Create WikiData item, page_namespace, page_title
 %end
