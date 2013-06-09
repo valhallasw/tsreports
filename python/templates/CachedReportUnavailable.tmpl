@@ -19,6 +19,7 @@ $i18n.report_name($report)
 #def body
 	<p>
 	#if $status == 'first'
+        <meta http-equiv="refresh" content="60">
 		$i18n.fmt('report_first_run')
 		#if $query_runtime > 0
 			$i18n.fmt('report_cold_cache_running', {'runtime': $i18n.format_duration($query_runtime) })
