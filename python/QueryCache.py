@@ -49,7 +49,7 @@ class QueryCache:
         data = pickle.dumps(data)
 
         c.execute("""UPDATE report_cache
-                     SET last_run=UNIX_TIMESTAMP(), last_run_duration=UNIX_TIMESTAMP()-last_start, result=%s
+                     SET last_run=UNIX_TIMESTAMP()+1, last_run_duration=GREATEST(1,UNIX_TIMESTAMP()-last_start), result=%s
                      WHERE dbname=%s AND report_key=%s""",
                      (data, dbname, report.key)
                  )
@@ -129,7 +129,7 @@ class QueryCache:
 
         if time_since_last_start is None or \
            time_since_last_start > report.cache or \
-           (time_since_last_finish is not None and time_since_last_finish < time_since_last_start):
+           (time_since_last_finish is not None and time_since_last_finish <= time_since_last_start):
             p = Process(target=QueryWorker.logging_update_report, args=(dbname, report, variables))
             p.start()
             return 0
