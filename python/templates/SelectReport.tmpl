@@ -33,9 +33,9 @@ $i18n.fmt('select_report_title', { 'wiki': $wiki.domain })
 			<dd>
 				<dl>
 				#for $report in $reports
-					<dt>
+					<dt class="report report-status-$status[$report.key]">
 					## Don't show a link for disabled templates
-					#if $report.key in $uncached
+					#if $report.nightly and $status[$report.key] == 'unavailable'
 						#set $anydisabled = True
 						<span class='disabled-report'
 							>$i18n.fmt('select_report_disabled', 

@@ -161,3 +161,25 @@ span.disabled-report {
 	float: right;
 	font-size: 75%;
 }
+
+dt.report {
+  padding-left: 20px;
+  background-repeat: no-repeat;
+  background-position: left top;
+}
+
+dt.report-status-unavailable {
+  background-image:url('report-status-unavailable.png')
+}
+
+dt.report-status-first {
+  background-image:url('report-status-first.png')
+}
+
+dt.report-status-cold {
+  background-image:url('report-status-cold.png')
+}
+
+dt.report-status-hot {
+  background-image:url('report-status-hot.png')
+}

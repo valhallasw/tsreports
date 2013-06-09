@@ -156,11 +156,24 @@ class QueryCache:
            %nightly queries."""
         db = repdb.connect_cache(self.context)
         c = db.cursor()
-        ret = []
+        ret = {}
+
+        c.execute("""SELECT report_key, UNIX_TIMESTAMP()-last_run, UNIX_TIMESTAMP()-last_start, last_run_duration
+                     FROM report_cache
+                     WHERE dbname=%s""", dbname)
+        
+        cached_reports = dict((report_key, (age, start_age, last_run_duration)) for (report_key, age, start_age, last_run_duration) in c.fetchall())
+
         for r in reports:
-            if not r.nightly: continue
-            c.execute("SELECT 1 FROM report_cache WHERE dbname=%s AND report_key=%s",
-                (dbname, r.key))
-            if len(c.fetchall()) == 0:
-                ret.append(r)
+            if r.key not in cached_reports:
+                ret[r.key] = 'unavailable'
+                continue
+            
+            age, start_age, last_run_duration = cached_reports[r.key]
+            if age is None:
+                ret[r.key] = 'first'
+            elif age > start_age or self.expired(r, age, last_run_duration):
+                ret[r.key] = 'cold'
+            else:
+                ret[r.key] = 'hot'
         return ret
