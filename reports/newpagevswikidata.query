@@ -1,6 +1,6 @@
 %name New pages that are not linked to from WikiData
 %description
-Lists up to 1,000 new pages that do not have a linked WikiData page yet.
+Lists up new pages that do not have a linked WikiData page yet.
 %end
 
 %category wikidata
@@ -21,8 +21,7 @@ WHERE rc_new=1
    AND page_namespace=0
    AND page_is_redirect=0
    AND pp_propname IS NULL 
-ORDER BY rc_timestamp DESC 
-LIMIT 1000;
+ORDER BY rc_timestamp DESC;
 %end
 
 %fields
