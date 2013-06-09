@@ -63,7 +63,7 @@ class PageField(Field):
             title = keys[self.titlefield]
 
         domain = keys['__domain__']
-        return """<a href="http://%s/wiki/%s">%s</a>""" % (
+        return """<a href="//%s/wiki/%s">%s</a>""" % (
             domain, 
             urllib.quote(title.encode('utf-8'), safe='/:'), 
             cgi.escape(title.replace('_', ' ')))
