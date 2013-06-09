@@ -10,6 +10,7 @@ category_users Users
 category_articles Articles
 category_images Images
 category_miscellaneous Miscellaneous
+category_wikidata WikiData
 
 # SelectWiki messages
 select_wiki_title Select a wiki

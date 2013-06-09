@@ -1,0 +1,30 @@
+%name New pages that are not linked to from WikiData
+%description
+Lists up to 1,000 new pages that do not have a linked WikiData page yet.
+%end
+
+%category wikidata
+%dynamiccache 120
+
+%query
+SELECT page_namespace, page_title
+FROM recentchanges
+JOIN page
+   ON rc_cur_id=page_id
+   AND rc_title=page_title
+   AND rc_namespace=page_namespace 
+LEFT JOIN page_props
+   ON rc_cur_id=pp_page
+   AND pp_propname="wikibase_item" 
+WHERE rc_new=1 
+   AND rc_namespace=0 
+   AND page_namespace=0
+   AND page_is_redirect=0
+   AND pp_propname IS NULL 
+ORDER BY rc_timestamp DESC 
+LIMIT 1000;
+%end
+
+%fields
+page,		Title,		page_namespace, page_title
+%end
