@@ -1,6 +1,6 @@
-%name Pages that are not linked to from WikiData
+%name Old pages that are not linked to from WikiData
 %description
-Lists (max 1000) pages that do not have a linked WikiData page yet.
+Lists (max 1000) pages that were not created recently and that do not have a linked WikiData page yet.
 %end
 
 %category wikidata
@@ -15,6 +15,7 @@ LEFT JOIN page_props
 WHERE page_namespace=0
    AND page_is_redirect=0
    AND pp_propname IS NULL
+   AND page_id < (SELECT rc_cur_id FROM recentchanges WHERE rc_new=1 ORDER BY rc_cur_id ASC LIMIT 1)
 LIMIT 1000;
 %end
 
