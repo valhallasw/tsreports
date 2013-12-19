@@ -132,7 +132,7 @@ class QueryCache:
            (time_since_last_finish is not None and time_since_last_finish <= time_since_last_start):
             import subprocess, json, os
 	    qwpy = os.path.join(os.path.split(__file__)[0], 'QueryWorker.py')
-	    pid = subprocess.Popen([qwpy, dbname, report.key, json.dumps(variables)]).pid
+	    subprocess.Popen(['jsub', '-N', '%s-%s' % (dbname, report.key), qwpy, dbname, report.key, json.dumps(variables)])
             return 0
         else:
             return time_since_last_start
