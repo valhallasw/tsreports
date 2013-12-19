@@ -18,5 +18,8 @@ for fcgi in fcgis:
 	print fcgi_server_template % {'fn': fcgi}
 
 print """
+url.rewrite-once += ( "/tsreports/?$" => "/tsreports/index.fcgi",
+                      "/tsreports/\?" => "/tsreports/index.fcgi")
+
 debug.log-request-handling = "enable"
 fastcgi.debug = 1 """
