@@ -62,7 +62,5 @@ find i18n \! -name '.*' | grep -v '\.svn' | cpio -Vpdm $WWW || true
 mysql -N -h $DBSERVER $DATABASE < reports.sql 
 
 echo "Restarting FCGIs..."
-for x in $(cd fcgi; echo *); do
-	pkill -USR1 -f $WWW/$x
-done
-
+python generate_lighttpd_conf.py > ~/.lighttpd.conf
+webservice restart

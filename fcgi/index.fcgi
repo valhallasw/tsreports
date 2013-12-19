@@ -27,7 +27,7 @@ import locale
 from RequestContext import RequestContext
 
 # Needs to be localised properly
-locale.setlocale(locale.LC_ALL, "en_US")
+locale.setlocale(locale.LC_ALL, "en_US.UTF-8")
 
 # The main report application.  This is given the context at startup
 # and holds it throughout the entire life of the application.
