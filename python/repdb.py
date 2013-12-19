@@ -8,6 +8,7 @@
 # $Id: repdb.py 81 2010-02-06 21:11:57Z river $
 
 import MySQLdb
+import urllib, json
 
 def connect_toolserver(context):
     """Return a connection to the toolserver database."""
@@ -62,11 +63,14 @@ def get_namespaces(context, wiki):
     """Return the namespace list for a wiki"""
     db = connect_toolserver(context)
     c = db.cursor()
-    c.execute("SELECT ns_id, ns_name FROM namespace WHERE dbname=%s", wiki)
-    ns = {}
-    for f in c.fetchall():
-        ns[f[0]] = unicode(f[1], 'utf-8')
-    return ns
+    c.execute("SELECT url FROM wiki WHERE dbname=%s", wiki)
+    host_url = c.fetchone()[0]
+    url = host_url + "/w/api.php?action=query&meta=siteinfo&siprop=namespaces&format=json"
+
+    apiresult = json.loads(urllib.urlopen(url).read())
+    namespaces = apiresult['query']['namespaces'].values()
+
+    return dict((x['id'], x['*']) for x in namespaces)
 
 def connect_cache(context):
     db = MySQLdb.connect(db = context.database, host = context.dbserver, read_default_file = context.mycnf)
