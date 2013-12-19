@@ -18,8 +18,8 @@ def connect_toolserver(context):
 
 def connect_wiki(context, wiki):
     """Return a connection to the given wiki database, e.g. enwiki_p"""
-    host = "%s.labsdb" % wiki.replace('_p', '')
-    db = MySQLdb.connect(db = wiki, host = host,
+    host = "%s.labsdb" % wiki
+    db = MySQLdb.connect(db = wiki + "_p", host = host,
         read_default_file = context.mycnf)
     c = db.cursor()
     c.execute("SET SESSION TRANSACTION ISOLATION LEVEL READ UNCOMMITTED")
