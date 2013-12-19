@@ -14,7 +14,7 @@ category_wikidata WikiData
 
 # SelectWiki messages
 select_wiki_title Select a wiki
-select_wiki Please enter the wiki you would like a report for (e.g. <em>en.wikipedia.org</em>):
+select_wiki Please enter the wiki you would like a report for (e.g. <em>http://en.wikipedia.org</em>):
 select_wiki_next Next &rarr;
 
 # SelectReport messages
