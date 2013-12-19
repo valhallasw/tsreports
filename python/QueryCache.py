@@ -130,8 +130,9 @@ class QueryCache:
         if time_since_last_start is None or \
            time_since_last_start > report.cache or \
            (time_since_last_finish is not None and time_since_last_finish <= time_since_last_start):
-            p = Process(target=QueryWorker.logging_update_report, args=(dbname, report, variables))
-            p.start()
+            import subprocess, json, os
+	    qwpy = os.path.join(os.path.split(__file__)[0], 'QueryWorker.py')
+	    pid = subprocess.Popen([qwpy, dbname, report.key, json.dumps(variables)]).pid
             return 0
         else:
             return time_since_last_start
