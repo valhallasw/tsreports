@@ -55,13 +55,18 @@ class WikiLister:
 		c = db.cursor()
 
 		# First try a match on domain.  If that doesn't work (no matches),
-		# assume they typed a database name instead.
-		c.execute("SELECT domain, dbname FROM wiki WHERE domain LIKE %s ORDER BY domain ASC LIMIT 20",
-				prefix + '%')
+		# assume they added http://, or typed a database name instead.
+		c.execute("SELECT url, dbname FROM wiki WHERE url LIKE %s ORDER BY url ASC LIMIT 20",
+				'http://' + prefix + '%')
 		x = c.fetchall()
 
 		if len(x) == 0:	# no matches
-			c.execute("SELECT domain, dbname FROM wiki WHERE dbname LIKE %s ORDER BY domain ASC LIMIT 20",
+			c.execute("SELECT url, dbname FROM wiki WHERE dbname LIKE %s ORDER BY url ASC LIMIT 20",
+					prefix + '%')
+			x = c.fetchall()
+
+		if len(x) == 0:	# no matches
+			c.execute("SELECT url, dbname FROM wiki WHERE dbname LIKE %s ORDER BY url ASC LIMIT 20",
 					prefix + '%')
 			x = c.fetchall()
 

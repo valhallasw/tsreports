@@ -11,13 +11,13 @@ import MySQLdb
 
 def connect_toolserver(context):
     """Return a connection to the toolserver database."""
-    db = MySQLdb.connect(db = 'toolserver', host = 'sql',
+    db = MySQLdb.connect(db = 'meta_p', host = 's3.labsdb',
         read_default_file = context.mycnf)
     return db
 
 def connect_wiki(context, wiki):
     """Return a connection to the given wiki database, e.g. enwiki_p"""
-    host = "%s.db.toolserver.org" % wiki.replace('_p', '-p')
+    host = "%s.labsdb" % wiki.replace('_p', '')
     db = MySQLdb.connect(db = wiki, host = host,
         read_default_file = context.mycnf)
     c = db.cursor()
@@ -31,7 +31,7 @@ def wiki_list(context):
     db = connect_toolserver(context)
     try:
         c = db.cursor()
-        c.execute("SELECT dbname, domain FROM wiki")
+        c.execute("SELECT dbname, url FROM wiki")
         for row in c.fetchall():
             list.append({'dbname': row[0], 'domain': row[1]})
     finally:
@@ -42,7 +42,7 @@ def find_wiki(context, wiki):
     """Return information on a single wiki, given its dbname"""
     db = connect_toolserver(context)
     c = db.cursor()
-    c.execute("SELECT dbname, domain FROM wiki WHERE dbname=%s", wiki)
+    c.execute("SELECT dbname, url FROM wiki WHERE dbname=%s", wiki)
     r = c.fetchall()
     if len(r) == 0:
         raise ValueError('no such wiki')
@@ -52,7 +52,7 @@ def find_wiki_domain(context, wiki):
     """Return information on a single wiki, given its domain"""
     db = connect_toolserver(context)
     c = db.cursor()
-    c.execute("SELECT dbname, domain FROM wiki WHERE domain=%s", wiki)
+    c.execute("SELECT dbname, url FROM wiki WHERE url=%s", wiki)
     r = c.fetchall()
     if len(r) == 0:
         raise ValueError('no such wiki')
