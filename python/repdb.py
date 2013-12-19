@@ -43,7 +43,7 @@ def find_wiki(context, wiki):
     """Return information on a single wiki, given its dbname"""
     db = connect_toolserver(context)
     c = db.cursor()
-    c.execute("SELECT dbname, url FROM wiki WHERE dbname=%s", wiki)
+    c.execute("SELECT dbname, url FROM wiki WHERE dbname=%s", wiki.replace("_p", ""))
     r = c.fetchall()
     if len(r) == 0:
         raise ValueError('no such wiki')
@@ -53,7 +53,7 @@ def find_wiki_domain(context, wiki):
     """Return information on a single wiki, given its domain"""
     db = connect_toolserver(context)
     c = db.cursor()
-    c.execute("SELECT dbname, url FROM wiki WHERE url=%s", wiki)
+    c.execute("SELECT dbname, url FROM wiki WHERE url=%s OR url=%s", (wiki, 'http://'+wiki))
     r = c.fetchall()
     if len(r) == 0:
         raise ValueError('no such wiki')
@@ -63,7 +63,7 @@ def get_namespaces(context, wiki):
     """Return the namespace list for a wiki"""
     db = connect_toolserver(context)
     c = db.cursor()
-    c.execute("SELECT url FROM wiki WHERE dbname=%s", wiki)
+    c.execute("SELECT url FROM wiki WHERE dbname=%s", wiki.replace("_p", ""))
     host_url = c.fetchone()[0]
     url = host_url + "/w/api.php?action=query&meta=siteinfo&siprop=namespaces&format=json"
 
