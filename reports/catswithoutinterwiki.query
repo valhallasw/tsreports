@@ -1,0 +1,20 @@
+%name Categories without interwiki links
+%description
+Lists Categories without interwiki links, with up to 1,000 pages.
+%end
+
+%category articles
+%dynamiccache 100
+
+%query
+SELECT page_namespace, page_title
+FROM page
+LEFT JOIN langlinks ON ll_from=page_id
+WHERE page_namespace=10
+    AND ll_from IS NULL
+LIMIT 1000;
+%end
+
+%fields
+page,	Category,	page_namespace, page_title
+%end
