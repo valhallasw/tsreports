@@ -21,6 +21,7 @@ sys.path.append(cfg['base'] + "/python")
 from beaker.middleware import SessionMiddleware
 
 from flup.server.fcgi import WSGIServer
+from flupgzip import GzipMiddleware
 import SelectWikiPage, SelectReportPage, DoReportPage
 from Reports import Report, ReportContext
 import locale
@@ -68,5 +69,6 @@ class ReportApplication:
 context = ReportContext(cfg)
 app = ReportApplication(context)
 app = RequestContext.wrap_wsgi(app, cfg)
+app = GzipMiddleware(app, mime_types=['text/', r'''application/(?:.+\+)?xml$''', 'application/json'])
 wsgi = WSGIServer(app)
 wsgi.run()
