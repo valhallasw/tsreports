@@ -12,6 +12,7 @@ import repdb
 from QueryCache import *
 from templates.QueryVariables import QueryVariables
 from templates.Report import Report
+from templates.WikitextReport import WikitextReport
 from templates.CachedReportUnavailable import CachedReportUnavailable
 
 class Field:
@@ -22,6 +23,9 @@ class Field:
 
     def format(self):
         return self.formatter.format(self.vars, self.lang)
+        
+    def wikiformat(self):
+        return self.formatter.wikiformat(self.vars, self.lang)
 
 def response(context, req):
     try:
@@ -31,8 +35,20 @@ def response(context, req):
         raise ValueError('no such report')
     
     dbname = req.params['wiki']
+    try:
+        format = req.params['format']
+    except KeyError:
+        format = 'html'
+    
+    Reporter = {'html': Report, 'wikitable': WikitextReport, 'wikilist': WikitextReport}[format]
+
     wiki = repdb.find_wiki(context, dbname)
     namespaces = repdb.get_namespaces(context, dbname)
+    
+    try:
+        columns = [x.lower() for x in req.params['columns'].split("|")]
+    except KeyError:
+        columns = None
 
     # Extract all variables from the request.  Make sure all the
     # required variables were specified; if not, emit a form
@@ -77,12 +93,15 @@ def response(context, req):
     result = cache_result['result']
     fields = report.fields
 
-    t = req.prepare_template(Report)
+    t = req.prepare_template(Reporter)
+    contenttype = {Report: 'text/html', WikitextReport: 'text/plain'}[Reporter] + '; charset=UTF-8'
     t.last_run_duration = cache_result.get('last_run_duration', None)
     t.age = age
     t.report = report
     t.wiki = wiki
     t.status = status
+    t.format = format
+    t.intro = "nointro" not in req.params
 
     if status == 'cold':
         t.query_runtime = cache_result['query runtime']
@@ -95,17 +114,18 @@ def response(context, req):
     t.headers = []
     for f in fields:
         t.headers.append(f.title)
-
+        
     t.rows = []
     for r in result:
         row = []
         for f in fields:
-            r['__namespaces__'] = namespaces
-            r['__dbname__'] = dbname
-            r['__domain__'] = wiki['domain']
-            row.append(Field(f, r, req.i18n))
+            if columns is None or f.title.lower() in columns:
+                r['__namespaces__'] = namespaces
+                r['__dbname__'] = dbname
+                r['__domain__'] = wiki['domain']
+                row.append(Field(f, r, req.i18n))
         t.rows.append(row)
 
     output = t.respond().encode('utf-8')
-    req.start_response('200 OK', [('Content-Type', 'text/html; charset=UTF-8')])
+    req.start_response('200 OK', [('Content-Type', contenttype)])
     yield output

@@ -21,7 +21,11 @@ class RequestContext:
             for val in vals:
                 if len(val) == 0:
                     continue
-                (k, v) = val.split('=', 1)
+                try:
+                    (k, v) = val.split('=', 1)
+                except ValueError:
+                    k = val.split("=")[0]
+                    v = ""
                 params[k] = urllib.unquote(v)
         return params
 

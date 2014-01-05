@@ -22,6 +22,9 @@ class Field:
     
     def format(self, keys, lang):
         return "Unknown field type"
+        
+    def wikiformat(self, keys, lang):
+        return "Unknown field type"
     
 class UserField(Field):
     """A field that returns a username.  Takes one param: the field
@@ -31,12 +34,21 @@ class UserField(Field):
         Field.__init__(self, params)
         self.userfield = params[1]
     
-    def format(self, keys, lang):
+    def mktitle(self, keys, lang):
         ns = keys['__namespaces__'][2]
         user = keys[self.userfield]
-        title = "%s:%s" % (ns, user)
+        if ns in [6, 13]:
+            title = ":" + title
+        return "%s:%s" % (ns, user)
+
+    def format(self, keys, lang):
+        title = self.mktitle(keys, lang)
         domain = keys['__domain__']
         return """<a href="http://%s/wiki/%s">%s</a>""" % (domain, urllib.quote(title.encode('utf-8'), safe='/:'), cgi.escape(user))
+        
+    def wikiformat(self, keys, lang):
+        title = self.mktitle(keys, lang)
+        return """[[%s]]""" % (title,)
 
 class PageField(Field):
     """A field that returns a formatted page name.  Takes two params:
@@ -47,7 +59,7 @@ class PageField(Field):
         self.nsfield = params[1]
         self.titlefield = params[2]
     
-    def format(self, keys, lang):
+    def mktitle(self, keys, lang):
         ns = keys[self.nsfield]
 
         title = ''
@@ -61,12 +73,21 @@ class PageField(Field):
             title = nsname + ":" + keys[self.titlefield]
         else:
             title = keys[self.titlefield]
-
-        domain = keys['__domain__']
-        return """<a href="//%s/wiki/%s">%s</a>""" % (
+            
+        if ns in [6, 13]:
+            title = ":" + title
+        return title
+        
+    def format(self, keys, lang):
+        title = self.mktitle(keys,lang)
+        domain = keys['__domain__'].replace('http://', '//')
+        return """<a href="%s/wiki/%s">%s</a>""" % (
             domain, 
             urllib.quote(title.encode('utf-8'), safe='/:'), 
             cgi.escape(title.replace('_', ' ')))
+            
+    def wikiformat(self, keys, lang):
+        return "[[%s]]" % self.mktitle(keys,lang)
 
 class ImageField(Field):
     """Like PageField, except it links to an image page given just the img_name.
@@ -76,15 +97,21 @@ class ImageField(Field):
         Field.__init__(self, params)
         self.titlefield = params[1]
     
-    def format(self, keys, lang):
+    def mktitle(self, keys, lang):
         nslist = keys['__namespaces__']
         nsname = nslist[6]
-        title = nsname + ":" + keys[self.titlefield]
-        domain = keys['__domain__']
-        return """<a href="http://%s/wiki/%s">%s</a>""" % (
+        return ":" + nsname + ":" + keys[self.titlefield]
+        
+    def format(self, keys, lang):
+        title = self.mktitle(keys, lang)
+        domain = keys['__domain__'].replace('http://', '//')
+        return """<a href="%s/wiki/%s">%s</a>""" % (
             domain, 
             urllib.quote(title.encode('utf-8'), safe='/:'), 
             cgi.escape(title.replace('_', ' ')))
+            
+    def wikiformat(self, keys, lang):
+        return "[%s]]" % self.mktitle(keys, lang)
 
 class OtherImageField(Field):
     """An ImageField that links to an image on a different wiki"""
@@ -93,9 +120,12 @@ class OtherImageField(Field):
         self.titlefield = params[1]
         self.domain = params[2]
     
+    def mktitle(self, keys, lang):
+        return ":Image:" + keys[self.titlefield]
+    
     def format(self, keys, lang):
-        title = "Image:" + keys[self.titlefield]
-        return """<a href="http://%s/wiki/%s">%s</a>""" % (
+        title = self.mktitle(keys, lang)
+        return """<a href="//%s/wiki/%s">%s</a>""" % (
             self.domain, 
             urllib.quote(title.encode('utf-8'), safe='/:'), 
             cgi.escape(title.replace('_', ' ')))
@@ -108,6 +138,9 @@ class TextField(Field):
     
     def format(self, keys, lang):
         return cgi.escape(keys[self.field], True)
+        
+    def wikiformat(self, keys, lang):
+        return keys[self.field]
 
 class TimestampField(Field):
     """Format an MW timestamp."""
@@ -115,10 +148,13 @@ class TimestampField(Field):
         Field.__init__(self, params)
         self.field = params[1]
     
-    def format(self, keys, lang):
+    def wikiformat(self, keys, lang):
         x = keys[self.field]
         dt = datetime.datetime(int(x[0:4]), int(x[4:6]), int(x[6:8]), int(x[8:10]), int(x[10:12]), int(x[12:14]))
-        return cgi.escape(lang.format_datetime(dt), True)
+        return lang.format_datetime(dt)
+        
+    def format(self, keys, lang):
+        return cgi.escape(self.wikiformat(keys, lang), True)
 
 
 class NumberField(Field):
@@ -127,8 +163,11 @@ class NumberField(Field):
         Field.__init__(self, params)
         self.field = params[1]
     
+    def wikiformat(self, keys, lang):
+        return lang.format_number(int(keys[self.field]))
+
     def format(self, keys, lang):
-        return cgi.escape(lang.format_number(int(keys[self.field])), True)
+        return cgi.escape(self.wikiformat(keys, lang), True)
 
 class WikiData_SearchField(Field):
     """A field that returns a search on WikiData for a formatted page name.
@@ -138,7 +177,7 @@ class WikiData_SearchField(Field):
         self.nsfield = params[1]
         self.titlefield = params[2]
     
-    def format(self, keys, lang):
+    def mkurl(self, keys, lang):
         ns = keys[self.nsfield]
 
         title = ''
@@ -153,8 +192,14 @@ class WikiData_SearchField(Field):
         else:
             title = keys[self.titlefield]
 
-        return """<a href="//www.wikidata.org/w/index.php?search=%s">(search)</a>""" % (
+        return """//www.wikidata.org/w/index.php?search=%s""" % (
             urllib.quote(title.replace("_", " ").encode('utf-8'), safe='/:'),)
+            
+    def format(self, keys, lang):
+        return """<a href="%s">(search)</a>""" % self.mkurl(keys, lang)
+        
+    def wikiformat(self, keys, lang):
+        return """[%s (search)]""" % self.mkurl(keys, lang)
 
 class WikiData_CreateField(Field):
     """A field that returns a formatted page name.  Takes two params:
@@ -165,7 +210,7 @@ class WikiData_CreateField(Field):
         self.nsfield = params[1]
         self.titlefield = params[2]
     
-    def format(self, keys, lang):
+    def mkurl(self, keys, lang):
         ns = keys[self.nsfield]
 
         title = ''
@@ -181,7 +226,13 @@ class WikiData_CreateField(Field):
             title = keys[self.titlefield]
 
         domain = keys['__domain__']
-        return """<a href="//www.wikidata.org/w/index.php?title=Special:NewItem&site=%s&page=%s">(create item)</a>""" % (
+        return """//www.wikidata.org/w/index.php?title=Special:NewItem&site=%s&page=%s""" % (
             cgi.escape(keys["__dbname__"][:-2]),
             urllib.quote(title.encode('utf-8'), safe='/:'), 
             )
+            
+    def format(self, keys, lang):
+        return """<a href="%s">(create item)</a>""" % self.mkurl(keys, lang)
+        
+    def wikiformat(self, keys, lang):
+        return """[%s (create item)]""" % self.mkurl(keys, lang)

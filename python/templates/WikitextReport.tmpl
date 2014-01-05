@@ -1,0 +1,43 @@
+## Copyright (c) 2013 Merlijn van Deen.  *#
+#*
+ * Permission is granted to anyone to use this software for any purpose,
+ * including commercial applications, and to alter it and redistribute it
+ * freely. This software is provided 'as-is', without any express or implied
+ * warranty.
+ *#
+#* $Id$ *#
+#if $intro
+tsreports: $i18n.report_name($report) - $wiki.domain
+Output of [https://http://tools.wmflabs.org/tsreports/?wiki=$wiki.dbname&report=$report.key]
+## Show the variables (if any) used to generate the report.
+#if len($report.variables) > 0
+    <p>$i18n.fmt('report_variables_used')</p>
+    <ul>
+    #for $name, $value in $variables.items()
+        <li>
+        $i18n.fmt('report_variable', { 'name': $name, 'value': $value })
+        </li>
+    #end for
+    </ul>
+#end if
+#end if
+#if len($rows) > 0	
+#if $format == "wikitable"
+{| class="wikitable"
+|-
+#for $header in $headers
+! $header
+#end for
+#for $row in $rows
+|-
+#for $field in $row
+| $field.wikiformat()
+#end for
+#end for
+|}
+#elif $format == "wikilist"
+#for $row in $rows
+*#for $field in $row# $field.wikiformat() #end for#
+#end for
+#end if
+#end if
