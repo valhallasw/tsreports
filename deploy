@@ -63,4 +63,4 @@ mysql -N -h $DBSERVER $DATABASE < reports.sql
 
 echo "Restarting FCGIs..."
 python generate_lighttpd_conf.py > ~/.lighttpd.conf
-webservice restart
+#webservice restart
