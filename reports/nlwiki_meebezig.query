@@ -1,0 +1,29 @@
+%name Pagina's met 'Mee bezig'-template
+%description
+Lijst van pagina's met {{meebezig}}, gesorteerd op laatste wijzigingsdatum
+%end
+
+%category articles
+%dynamiccache 100
+
+%wikis
+http://nl.wikipedia.org
+%end
+
+%query
+SELECT rev_timestamp,
+       page_namespace,
+       page_title
+FROM templatelinks
+LEFT JOIN page ON page_id=tl_from 
+LEFT JOIN revision ON page_latest=rev_id
+WHERE tl_namespace=10
+  AND tl_title='Meebezig'
+  AND page_namespace=0
+ORDER BY rev_timestamp ASC;
+%end
+
+%fields
+timestamp, Laatste wijziging, rev_timestamp
+page,	Pagina,	page_namespace, page_title
+%end
