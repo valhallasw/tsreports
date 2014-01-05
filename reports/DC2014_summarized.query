@@ -1,0 +1,24 @@
+%name DC2014: List of users and their total page count
+%category DC2014
+%description
+Lists participants in the DC2014 competition and their ranking (number of characters and number of pages)
+%end
+%dynamiccache 100
+%wikis
+http://ml.wikisource.org
+%end
+%query
+SELECT 2 AS user_namespace, rev_user_text AS user_name, sum(page_len) as total_length, count(page_len) as num_pages
+FROM categorylinks 
+LEFT JOIN page ON page_id=cl_from
+LEFT JOIN revision ON page_id=rev_page
+WHERE cl_to="DC2014Pages" AND rev_parent_id=0
+GROUP BY rev_user_text
+ORDER BY total_length DESC, num_pages DESC;
+%end
+%fields
+page,		 User,	 user_namespace, user_name 
+number,      Total page length, total_length
+number,      Number of pages, num_pages
+%end
+

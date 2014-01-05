@@ -1,0 +1,24 @@
+%name DC2014: List of users and their created pages
+%category DC2014
+%description
+Lists pages created during the DC2014 competition. For each page, it lists
+the user who created the page and the page length.
+%end
+%dynamiccache 100
+%wikis
+http://ml.wikisource.org
+%end
+%query
+SELECT 2 AS user_namespace, rev_user_text AS user_name,
+       page_namespace, page_title, page_len
+FROM categorylinks 
+LEFT JOIN page ON page_id=cl_from
+LEFT JOIN revision ON page_id=rev_page
+WHERE cl_to="DC2014Pages" AND rev_parent_id=0
+ORDER BY rev_user_text, page_title;
+%end
+%fields
+page,		 User,	 user_namespace, user_name 
+page,        Page,   page_namespace, page_title
+number,      Page length, page_len
+%end
