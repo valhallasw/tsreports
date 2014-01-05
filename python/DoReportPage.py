@@ -15,10 +15,31 @@ from templates.Report import Report
 from templates.WikitextReport import WikitextReport
 from templates.CachedReportUnavailable import CachedReportUnavailable
 
+statuses = {'hot': 'Report is cached',
+            'cold': 'Report is cached, but a new report is prepared',
+           }
+
 import json
 class JSONReport(object):
     def respond(self):
-        return json.dumps( {'result': [ {f.formatter.title: f.APIformat() for f in row } for row in self.rows ] } )
+        retval = {}
+        
+        retval['meta'] = {'report': {'name': self.report.key,
+                                     'description': self.report.description,
+                                     'query': self.report.query,
+                                     },
+                          'wiki': self.wiki,
+                          'status': {'name': self.status, 'description': statuses[self.status]},
+                          'age': self.age,
+                          'duration': self.last_run_duration}
+        retval['results'] = [ {f.formatter.title: f.APIformat() for f in row } for row in self.rows ]
+        
+        try:
+            retval['meta']['status']['runtime'] = self.query_runtime
+        except AttributeError, e:
+            pass
+
+        return json.dumps(retval)
 
 class Field:
     def __init__(self, formatter, vars, lang):
