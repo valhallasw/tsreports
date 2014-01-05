@@ -19,8 +19,14 @@ statuses = {'hot': 'Report is cached',
             'cold': 'Report is cached, but a new report is prepared',
            }
 
-import json
+
+import json, datetime
 class JSONReport(object):
+    def customSerializer(self, value):
+        if isinstance(value, datetime.datetime):
+            return value.isoformat()
+        raise TypeError
+
     def respond(self):
         retval = {}
         
@@ -39,7 +45,7 @@ class JSONReport(object):
         except AttributeError, e:
             pass
 
-        return json.dumps(retval)
+        return json.dumps(retval, default=self.customSerializer)
 
 class Field:
     def __init__(self, formatter, vars, lang):
