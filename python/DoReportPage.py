@@ -15,6 +15,11 @@ from templates.Report import Report
 from templates.WikitextReport import WikitextReport
 from templates.CachedReportUnavailable import CachedReportUnavailable
 
+import json
+class JSONReport(object):
+    def respond(self):
+        return json.dumps( {'result': [ {f.formatter.title: f.APIformat() for f in row } for row in self.rows ] } )
+
 class Field:
     def __init__(self, formatter, vars, lang):
         self.vars = vars
@@ -26,6 +31,9 @@ class Field:
         
     def wikiformat(self):
         return self.formatter.wikiformat(self.vars, self.lang)
+        
+    def APIformat(self):
+        return self.formatter.APIformat(self.vars, self.lang)
 
 def response(context, req):
     try:
@@ -40,7 +48,7 @@ def response(context, req):
     except KeyError:
         format = 'html'
     
-    Reporter = {'html': Report, 'wikitable': WikitextReport, 'wikilist': WikitextReport}[format]
+    Reporter = {'html': Report, 'wikitable': WikitextReport, 'wikilist': WikitextReport, 'json': JSONReport}[format]
 
     wiki = repdb.find_wiki(context, dbname)
     namespaces = repdb.get_namespaces(context, dbname)
@@ -94,7 +102,7 @@ def response(context, req):
     fields = report.fields
 
     t = req.prepare_template(Reporter)
-    contenttype = {Report: 'text/html', WikitextReport: 'text/plain'}[Reporter] + '; charset=UTF-8'
+    contenttype = {Report: 'text/html', WikitextReport: 'text/plain', JSONReport: 'application/json'}[Reporter] + '; charset=UTF-8'
     t.last_run_duration = cache_result.get('last_run_duration', None)
     t.age = age
     t.report = report
