@@ -47,7 +47,7 @@ class UserField(Field):
     def format(self, keys, lang):
         title = self.mktitle(keys, lang)
         domain = keys['__domain__']
-        return """<a href="%s/wiki/%s">%s</a>""" % (domain, urllib.quote(title.encode('utf-8'), safe='/:'), cgi.escape(user))
+        return """<a href="%s/wiki/%s">%s</a>""" % (domain, urllib.quote(title.encode('utf-8'), safe='/:'), cgi.escape(title))
         
     def wikiformat(self, keys, lang):
         title = self.mktitle(keys, lang)
