@@ -5,3 +5,4 @@ if [[ ! -z `git status --porcelain` ]]; then
 fi
 git push origin master
 become tsreports bash -c "cd src/tsreports && git pull && ./deploy"
+tail -f /data/project/tsreports/error.log
