@@ -1,0 +1,7 @@
+#!/bin/bash
+if [[ ! -z `git status --porcelain` ]]; then
+	echo Can only deploy from a clean working directory. Commit changes and .gitignore stuff that should be ignored!
+	exit
+fi
+git push origin master
+become tsreports bash -c "cd src/tsreports && git pull && ./deploy"
