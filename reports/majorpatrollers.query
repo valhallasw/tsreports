@@ -1,0 +1,25 @@
+%name List of most active patrollers
+%description
+Lists the top-50 users who have patrolled the most revisions.
+%end
+
+%category users
+%dynamiccache 100
+
+%query
+        SELECT count(1) as count, user_name
+        FROM nlwiki_p.logging
+        LEFT JOIN nlwiki_p.user
+        ON log_user = user_id
+        WHERE log_type = 'patrol'
+        AND NOT EXISTS (SELECT 1 FROM nlwiki_p.user_groups
+                        WHERE ug_user = user_id
+                        AND ug_group = 'bot')
+        GROUP BY log_user
+        ORDER BY count DESC LIMIT 50;
+%end
+
+%fields
+user,	User name,	user_name
+number, Number of patrolled revisions, count
+%end
