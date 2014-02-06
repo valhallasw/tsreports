@@ -1,5 +1,6 @@
 # tsreports specific
 jsmin
+venv
 
 # Python
 *.py[co]

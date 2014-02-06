@@ -1,4 +1,4 @@
-#! /bin/ksh
+#! /usr/bin/env ksh
 # Copyright (c) 2008-2010 River Tarnell.
 #
 # Permission is granted to anyone to use this software for any purpose,
@@ -19,11 +19,17 @@ if [[ ! -f $HOME/.reports.cfg ]]; then
 	echo >&2 "Cannot run without $HOME/.reports.cfg."
 	exit 1
 fi
+
 INSTALLDIR=$(python -c "execfile(\"$HOME/.reports.cfg\", globals()); print base")
 WWW=$(python -c "execfile(\"$HOME/.reports.cfg\", globals()); print htmldir")
 DATABASE=$(python -c  "execfile(\"$HOME/.reports.cfg\", globals()); print database")
 DBSERVER=$(python -c  "execfile(\"$HOME/.reports.cfg\", globals()); print dbserver")
 
+if [[ ! -f $INSTALLDIR/venv/bin/activate ]]; then
+	virtualenv --system-site-packages $INSTALLDIR/venv
+fi
+source $INSTALLDIR/venv/bin/activate
+pip install -r requirements.txt
 
 mkdir -p $WWW $INSTALLDIR
 mkdir -p $INSTALLDIR/bin
@@ -38,7 +44,7 @@ echo "Copying to $INSTALLDIR..."
 find python reports \! \( -name '.*' -o -name README \) | 
 	grep -v '\.svn' | 
 	cpio -Vpdm $INSTALLDIR 2>&1 | 
-	grep -v Existing || true
+	grep -v 'newer or same age version exists' || true
 
 echo "Compiling templates..."
 cheetah compile --nobackup -R $INSTALLDIR/python/templates
@@ -59,9 +65,22 @@ done
 echo "Copying i18n files..."
 find i18n \! -name '.*' | grep -v '\.svn' | cpio -Vpdm $WWW || true
 
+if [[ ! -e ~/.my.cnf ]]; then
+	echo "Linking ~/.my.cnf to ~/replica.my.cnf"
+        ln -s $HOME/replica.my.cnf $HOME/.my.cnf
+fi	
+
+echo "Updating database..."
+echo CREATE DATABASE IF NOT EXISTS $DATABASE | mysql -N -h $DBSERVER
 mysql -N -h $DBSERVER $DATABASE < reports.sql 
 
-echo "Restarting FCGIs..."
-python generate_lighttpd_conf.py > ~/.lighttpd.conf
-#webservice restart
-ps aux | grep tsreports | grep python  |grep fcgi | awk '{print $2}' | xargs kill
+WEBGRID_ID=`qstat | grep webgrid | sed -e 's/.*webgrid-//' | cut -d. -f1`
+
+if [[ ! -f ~/.lighttpd.conf || generate_lighttpd_conf.py -nt ~/.lighttpd.conf || -z $WEBGRID_ID ]]; then
+	python generate_lighttpd_conf.py > ~/.lighttpd.conf
+	webservice restart
+else
+	WEBGRID_HOST=tools-webgrid-$WEBGRID_ID
+	echo Restarting FCGIs on $WEBGRID_HOST
+	ssh $WEBGRID_HOST $INSTALLDIR/kill_fcgi.sh
+fi
