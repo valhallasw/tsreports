@@ -51,6 +51,8 @@ $i18n.fmt('select_report_title', { 'wiki': $wiki.domain })
                         $i18n.fmt('select_report_disabled')
                     #elif $status == 'not cached'
                         $i18n.fmt('select_report_not_cached')
+                    #elif $status == 'first'
+                        $i18n.fmt('select_report_first')
                     #elif $status == 'hot'
                         $i18n.fmt('select_report_hot', {
                             'age': $i18n.format_duration($cache_status[$report]['age'])

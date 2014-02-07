@@ -120,7 +120,9 @@ class QueryCache:
                 return {'status': 'unavailable'}
             return {'status': 'not cached'}
 
-        if last_start > last_run: # could also be a manual run, after all.
+        if last_run is None: # initial run
+            return {'status': 'first', 'running': True, 'query runtime': query_runtime}
+        elif last_start > last_run: # could also be a manual run, after all.
             return {'status': 'cold', 'running': True, 'query runtime': query_runtime, 
                     'age': age, 'last_run_duration': last_run_duration}
         elif not self.expired(report, age, last_run_duration):
@@ -137,10 +139,9 @@ class QueryCache:
         c = db.cursor()
         c.execute("""SELECT report_key, UNIX_TIMESTAMP() as now, last_run, last_start, last_run_duration
                      FROM report_cache
-                     WHERE dbname=%s
-                         AND result IS NOT NULL""",
+                     WHERE dbname=%s""",
                   (dbname,))
-        
+
         results = {report_key: (now, last_run, last_start, last_run_duration) for \
                    (report_key, now, last_run, last_start, last_run_duration) in c.fetchall()}
         
