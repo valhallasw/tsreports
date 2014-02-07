@@ -24,6 +24,9 @@ class LanguageEnglish:
 
     def format_duration(self, length):
         """Format a duration in seconds as a human-readable string."""
+        if length < 0:
+            return "an unknown period of time"
+        length = int(round(length))
         weeks = length / (7 * 24 * 60 * 60)
         length %= (7 * 24 * 60 * 60)
         days = length / (24 * 60 * 60)
@@ -36,14 +39,14 @@ class LanguageEnglish:
 
         r = ''
         if weeks > 0:
-            r += ", %d week(s)" % weeks
+            r += ", %d week" % weeks + ("s" if weeks != 1 else "")
         if days > 0:
-            r += ", %d day(s)" % days
+            r += ", %d day" % days + ("s" if days != 1  else "")
         if hours > 0:
-            r += ", %d hour(s)" % hours
+            r += ", %d hour" % hours + ("s" if hours != 1  else "")
         if minutes > 0:
-            r += ", %d minute(s)" % minutes 
-        r += ", %d second(s)" % seconds
+            r += ", %d minute" % minutes + ("s" if minutes != 1  else "")
+        r += ", %d second" % seconds + ("s" if seconds != 1 else "")
 
         return r[2:]
 
