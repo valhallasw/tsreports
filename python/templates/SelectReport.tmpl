@@ -26,7 +26,6 @@ $i18n.fmt('select_report_title', { 'wiki': $wiki.domain })
 
 		<p>$i18n.fmt('select_report')</p>
 
-		#set $anydisabled = False
 		#for $cat, $reports in $categories.items()
 		<dl>
 			<dt>$cat</dt>
@@ -35,28 +34,46 @@ $i18n.fmt('select_report_title', { 'wiki': $wiki.domain })
 				#for $report in $reports
 					<dt>
 					## Don't show a link for disabled templates
-                    #if $cache_status[$report]['status'] == 'unavailable'
-						#set $anydisabled = True
+                    #set $status = $cache_status[$report]['status']
+                    #if $status == 'unavailable'
 						<span class='disabled-report'
-							>$i18n.fmt('select_report_disabled', 
-								{ 'name': $i18n.report_name(report) } )</span>
+							>$i18n.report_name($report)</span>
 					#else
 						<a href="$context.docroot/?wiki=$wiki.dbname&report=$report.key"
 							>$i18n.report_name($report)</a>
 					#end if
-					</dt>
+                    </dt>
 					<dd>
 						$i18n.report_description($report)
+                        <br/>
+                                 <span class='report-status'>
+                    #if $status == 'unavailable'
+                        $i18n.fmt('select_report_disabled')
+                    #elif $status == 'not cached'
+                        $i18n.fmt('select_report_not_cached')
+                    #elif $status == 'hot'
+                        $i18n.fmt('select_report_hot', {
+                            'age': $i18n.format_duration($cache_status[$report]['age'])
+                        })
+                    #elif $status == 'cold' and $cache_status[$report]['running']
+                        $i18n.fmt('select_report_cold_running', {
+                            'age': $i18n.format_duration($cache_status[$report]['age']),
+                            'eta': $i18n.format_duration($cache_status[$report]['last_run_duration']*1.1 - $cache_status[$report]['query runtime'])
+                        })
+                    #elif $status == 'cold' and not $cache_status[$report]['running']
+                        $i18n.fmt('select_report_cold_not_running', {
+                            'age': $i18n.format_duration($cache_status[$report]['age'])
+                        })
+                    #else
+                        ERROR: Status unknown!
+                    #end if
+                    </span>
 					</dd>
 				#end for
 				</dl>
 			</dd>
 		</dl>
 		#end for
-
-		#if $anydisabled == True
-			<p>$i18n.fmt('select_report_disabled_blurb')</p>
-		#end if
 	#end if
 #end def
 
