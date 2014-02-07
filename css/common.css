@@ -120,10 +120,6 @@ a:hover {
 	border-bottom: 1px solid #333;
 }
 
-span {
-    font-weight: bolder;
-}
-
 ul {
     list-style-type: square;
 }
@@ -152,7 +148,11 @@ th {
 }
 
 span.disabled-report {
-	color: #977;
+	text-decoration: line-through;
+}
+
+span.report-status {
+    font-size: x-small;
 }
 
 #select-report-go-back,
@@ -160,4 +160,12 @@ span.disabled-report {
 	margin-top: -15px;
 	float: right;
 	font-size: 75%;
+}
+
+dl {
+    margin-top: 0.8em;
+}
+
+dd {
+    margin-bottom: 0.5em;
 }
