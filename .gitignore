@@ -32,3 +32,6 @@ pip-log.txt
 .mr.developer.cfg
 
 python/templates/*.py
+
+# eg used for test queries
+TEST_*
