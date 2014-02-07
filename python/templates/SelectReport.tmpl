@@ -62,7 +62,8 @@ $i18n.fmt('select_report_title', { 'wiki': $wiki.domain })
                         })
                     #elif $status == 'cold' and not $cache_status[$report]['running']
                         $i18n.fmt('select_report_cold_not_running', {
-                            'age': $i18n.format_duration($cache_status[$report]['age'])
+                            'age': $i18n.format_duration($cache_status[$report]['age']),
+                            'eta': $i18n.format_duration($cache_status[$report]['last_run_duration']*1.1)
                         })
                     #else
                         ERROR: Status unknown!

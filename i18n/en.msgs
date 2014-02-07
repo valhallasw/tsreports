@@ -25,7 +25,7 @@ select_report_disabled_blurb Note: reports <span class='disabled-report'>like th
 select_report_not_cached There is no cached version of this report. Click the link to start the first run.
 select_report_hot A cached version of this report, %(age)s old, is available.
 select_report_cold_running A cached version of this report, %(age)s old, is available. A new version is expected in %(eta)s.
-select_report_cold_not_running A cached version of this report, %(age)s old, is available. A new version will be prepared if you view the current report.
+select_report_cold_not_running A cached version of this report, %(age)s old, is available. A new version will be prepared if you view the current report, and will be ready in approximately %(eta)s.
 select_report_no_reports Sorry, there are no reports available for %(wiki)s at this time.
 select_report_go_back &larr; Change wiki
 
