@@ -109,6 +109,43 @@ class QueryCache:
         result = self.update_report(dbname, report, variables)
         return {'status': 'fresh', 'age': 0, 'result': result}
 
+    def get_report_state(self, report, now, last_run, last_start, last_run_duration):
+        age = (now - last_run) if last_run is not None else None
+        query_runtime = (now - last_start) if last_start is not None else None
+        if not report.cachable():
+            return {'status': 'not cached'}
+        if last_start is None:
+            # no cached report, and no report started
+            if report.nightly:
+                return {'status': 'unavailable'}
+            return {'status': 'not cached'}
+
+        if last_start > last_run: # could also be a manual run, after all.
+            return {'status': 'cold', 'running': True, 'query runtime': query_runtime, 
+                    'age': age, 'last_run_duration': last_run_duration}
+        elif not self.expired(report, age, last_run_duration):
+            return {'status': 'hot', 'age': age, 'last_run_duration': last_run_duration}
+        else:
+            return {'status': 'cold', 'running': False, 
+                    'age': age, 'last_run_duration': last_run_duration}
+        
+    def check_cache(self, dbname, reports):
+        """Given a database name and a list of Report objects, return a dict
+           Report: {'status': '..', 'query runtime', etc}
+        """
+        db = repdb.connect_cache(self.context)
+        c = db.cursor()
+        c.execute("""SELECT report_key, UNIX_TIMESTAMP() as now, last_run, last_start, last_run_duration
+                     FROM report_cache
+                     WHERE dbname=%s
+                         AND result IS NOT NULL""",
+                  (dbname,))
+        
+        results = {report_key: (now, last_run, last_start, last_run_duration) for \
+                   (report_key, now, last_run, last_start, last_run_duration) in c.fetchall()}
+        
+        return {report: self.get_report_state(report, *results.get(report.key, (None, None, None, None))) for report in reports}
+        
     def run_background_update(self, dbname, report, variables):
         import QueryWorker
 
@@ -161,17 +198,3 @@ class QueryCache:
         result = report.execute(self.context, dbname, variables)
         self.save(dbname, report, result)
         return result
-
-    def check_cache(self, dbname, reports):
-        """Given a list of reports, return a list of those which are uncached
-           %nightly queries."""
-        db = repdb.connect_cache(self.context)
-        c = db.cursor()
-        ret = []
-        for r in reports:
-            if not r.nightly: continue
-            c.execute("SELECT 1 FROM report_cache WHERE dbname=%s AND report_key=%s",
-                (dbname, r.key))
-            if len(c.fetchall()) == 0:
-                ret.append(r)
-        return ret

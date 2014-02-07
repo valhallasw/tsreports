@@ -35,7 +35,7 @@ $i18n.fmt('select_report_title', { 'wiki': $wiki.domain })
 				#for $report in $reports
 					<dt>
 					## Don't show a link for disabled templates
-					#if $report.key in $uncached
+                    #if $cache_status[$report]['status'] == 'unavailable'
 						#set $anydisabled = True
 						<span class='disabled-report'
 							>$i18n.fmt('select_report_disabled', 

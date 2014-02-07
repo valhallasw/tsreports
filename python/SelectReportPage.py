@@ -42,7 +42,7 @@ def response(context, req):
             cats[catname].append(r)
         t.categories = cats
         cache = QueryCache(context)
-        t.uncached = [r.key for r in cache.check_cache(t.wiki['dbname'], context.reports.values())]
+        t.cache_status = cache.check_cache(t.wiki['dbname'], context.reports.values())
         output = str(t)
 
         req.start_response('200 OK', [('Content-Type', 'text/html; charset=UTF-8')])
