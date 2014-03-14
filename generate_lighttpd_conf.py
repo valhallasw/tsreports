@@ -1,5 +1,5 @@
 import os,glob
-username = os.environ["USER"].replace('local-', '')
+username = os.environ["USER"].replace('tools.', '')
 venv = os.environ["VIRTUAL_ENV"]
 
 fcgis = [os.path.split(f)[1] for f in glob.glob(os.path.expanduser("~/public_html/*.fcgi"))]
