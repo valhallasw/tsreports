@@ -74,7 +74,7 @@ echo "Updating database..."
 echo CREATE DATABASE IF NOT EXISTS $DATABASE | mysql -N -h $DBSERVER
 mysql -N -h $DBSERVER $DATABASE < reports.sql 
 
-WEBGRID_ID=`qstat | grep webgrid | sed -e 's/.*webgrid-//' | cut -d. -f1`
+WEBGRID_ID=`qstat -r | grep "Master Queue" | grep webgrid-lighttpd | sed -e 's/.*webgrid-//' | cut -d. -f1`
 
 if [[ ! -f ~/.lighttpd.conf || generate_lighttpd_conf.py -nt ~/.lighttpd.conf || -z $WEBGRID_ID ]]; then
 	python generate_lighttpd_conf.py > ~/.lighttpd.conf
