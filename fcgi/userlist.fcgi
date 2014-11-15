@@ -24,6 +24,7 @@ from flup.server.fcgi import WSGIServer
 import SelectWikiPage, SelectReportPage, DoReportPage
 from Reports import Report, ReportContext
 import locale
+import json
 
 def split_query_string(str):
 	params = {}
@@ -57,11 +58,10 @@ class UserLister:
 		c.execute("SELECT user_name FROM user WHERE user_name LIKE %s ORDER BY user_name ASC LIMIT 20",
 				prefix + '%')
 		x = c.fetchall()
-		list = "\n".join([d[0] for d in x])
 
 		start_response('200 OK', 
 			[('Content-Type', 'text/plain; charset=UTF-8')])
-		yield list
+		yield json.dumps([d[0] for d inf x])
 
 context = ReportContext(cfg)
 app = UserLister(context)

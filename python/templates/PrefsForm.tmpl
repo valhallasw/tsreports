@@ -17,15 +17,18 @@
 $i18n.fmt('prefs_title')
 #end def
 
+#def head
+#end def
+
 #def body
 	<form action="$context.docroot/prefs.fcgi" method="post">
 		<label for="lang">$i18n.fmt('prefs_langlabel')</label>
 		<select name="lang" id="lang">
-			<option value="en">English</option>
-			<option value="de">Deutsch</option>
-			<option value="es">Español</option>
-		</select>
-
+        #for $ilang, $iname in sorted($langs.iteritems())
+        <option value="$ilang" #if $ilang==$lang#selected#end if#>$iname</option>
+        #end for
+        <pre>
+        </select>
 		<br />
 
 		<input type="submit" value="$i18n.fmt('prefs_submit')" />

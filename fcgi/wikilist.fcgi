@@ -24,6 +24,7 @@ from flup.server.fcgi import WSGIServer
 import SelectWikiPage, SelectReportPage, DoReportPage
 from Reports import Report, ReportContext
 import locale
+import json
 
 def split_query_string(str):
 	params = {}
@@ -48,8 +49,8 @@ class WikiLister:
 			params = split_query_string(environ["QUERY_STRING"])
 
 		prefix = ''
-		if params.has_key('q'):
-			prefix = params['q']
+		if params.has_key('term'):
+			prefix = params['term']
 
 		db = repdb.connect_toolserver(self.context)
 		c = db.cursor()
@@ -70,11 +71,9 @@ class WikiLister:
 					prefix + '%')
 			x = c.fetchall()
 
-		list = "\n".join(["%s|%s" % (d[0], d[1]) for d in x])
-
 		start_response('200 OK', 
 			[('Content-Type', 'text/plain; charset=UTF-8')])
-		yield list
+		yield json.dumps([{'value': v, 'dbname': l} for v,l in x])
 
 context = ReportContext(cfg)
 app = WikiLister(context)

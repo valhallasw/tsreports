@@ -20,6 +20,9 @@ sys.path.append(cfg['base'] + "/python")
 sys.path.append('/opt/ts/lib/python2.4/site-packages')
 
 import cgi
+import requests
+import json
+
 from beaker.middleware import SessionMiddleware
 
 from flup.server.fcgi import WSGIServer
@@ -58,7 +61,9 @@ class ReportApplication:
 		if method == "GET":
 			t = PrefsForm()
 			t.context = context
+                        t.langs = json.loads(requests.get('https://tools.wmflabs.org/intuition/wpAvailableLanguages.js.php').text.split("=")[1][:-1])
 			t.i18n = req.i18n
+                        t.lang = req.lang
 			out = t.respond().encode('utf-8')
 			start_response('200 OK', 
 				[('Content-Type', 'text/html; charset=UTF-8')])
