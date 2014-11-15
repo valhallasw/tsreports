@@ -8,9 +8,9 @@
 # $Id$
 
 import re, cgi, codecs
+import requests
 
-class LanguageEnglish:
-    """English is the base class for all languages."""
+class LanguageFormatter(object):
     def __init__(self):
         pass
 
@@ -81,49 +81,22 @@ class LanguageEnglish:
             return self.msgs[key]
         return report.category
     
-class LanguageGerman(LanguageEnglish):
-    pass
-
-class LanguageSpanish(LanguageEnglish):
-    pass
-
-class I18nLoader:
-    languages = {
-        'en': LanguageEnglish,
-        'de': LanguageGerman,
-        'es': LanguageSpanish
-    };
-
+class I18nLoader(object):
     def __init__(self, context):
-        self.classes = {}
-        for lang in self.languages.keys():
-            l = self.languages[lang]()
-            l.msgs = self.load_messages(context, 'en')
-            l.msgs.update(self.load_messages(context, lang))
-            l.lang = lang
-            self.classes[lang] = l
+        self.session = requests.Session()
+        self.context = context
 
     def get_language(self, lang):
-        if lang in self.classes:
-            return self.classes[lang]
-        return self.classes['en']
+        obj = LanguageFormatter()
+        obj.msgs = self.load_messages(self.context, lang)
+        obj.lang = lang
+        return obj
 
     def load_messages(self, context, lang):
-        if re.compile("^[a-z_-]+$", re.IGNORECASE).match(lang) == None:
-            return
+        domains = ['general', 'tsreports']
+        translatedata = self.session.get(context.intuition, params={'domains': '|'.join(domains), 'lang': lang}).json()
+        messages = {}
 
-        filename = "%s/i18n/%s.msgs" % (context.htmldir, lang)
-        msgs = {}
-        with codecs.open(filename, 'r', 'UTF-8') as handle:
-            for line in handle:
-                line = line.rstrip()
-                if len(line) == 0 or line[0] == '#':
-                    continue
-                bits = line.split(' ', 1)
-
-                if len(bits) == 2:
-                    msgs[bits[0]] = bits[1]
-                else:
-                    msgs[bits[0]] = ""
-        return msgs
-
+        for domain in domains:
+            messages.update(translatedata['messages'][domain])
+        return messages

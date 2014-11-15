@@ -156,6 +156,7 @@ class ReportContext:
         self.htmldir = cfg['htmldir']
         self.mycnf = cfg['homedir'] + "/.my.cnf";
         self.dbserver = cfg['dbserver']
+        self.intuition = cfg['intuition']
         if 'sitenotice' in cfg:
             self.sitenotice = cfg['sitenotice']
         else:

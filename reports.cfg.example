@@ -18,3 +18,6 @@ htmldir = '/home/river/public_html/reports'
 
 # The database servers for the session and report cache
 dbserver = 'sql'
+
+# url to intuition
+intuition = 'https://tools.wmflabs.org/intuition/api.php'
