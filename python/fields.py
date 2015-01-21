@@ -274,7 +274,7 @@ class WikiData_CreateField(Field):
 
         domain = keys['__domain__']
         return """//www.wikidata.org/w/index.php?title=Special:NewItem&site=%s&page=%s""" % (
-            cgi.escape(keys["__dbname__"][:-2]),
+            cgi.escape(keys["__dbname__"]),
             urllib.quote(title.encode('utf-8'), safe='/:'), 
             )
             
