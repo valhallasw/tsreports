@@ -61,7 +61,7 @@ class ReportApplication:
 		if method == "GET":
 			t = PrefsForm()
 			t.context = context
-                        t.langs = json.loads(requests.get('https://tools.wmflabs.org/intuition/wpAvailableLanguages.js.php').text.split("=")[1][:-1])
+                        t.langs = json.loads(requests.get(cfg['intuition'][:-7] + "wpAvailableLanguages.js.php").text.split("=")[1][:-1])
 			t.i18n = req.i18n
                         t.lang = req.lang
 			out = t.respond().encode('utf-8')
@@ -79,8 +79,9 @@ class ReportApplication:
 			t.context = context
 			t.i18n = req.i18n
 			out = t.respond().encode('utf-8')
-			start_response('200 OK', 
-				[('Content-Type', 'text/html; charset=UTF-8')])
+			start_response('302 Found', 
+				[('Content-Type', 'text/html; charset=UTF-8'),
+                                 ('Location', cfg['docroot'] + "/")])
 			yield out
 		else:
 			raise ValueError('unknown request method')

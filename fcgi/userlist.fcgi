@@ -61,7 +61,7 @@ class UserLister:
 
 		start_response('200 OK', 
 			[('Content-Type', 'text/plain; charset=UTF-8')])
-		yield json.dumps([d[0] for d inf x])
+		yield json.dumps([d[0] for d in x])
 
 context = ReportContext(cfg)
 app = UserLister(context)

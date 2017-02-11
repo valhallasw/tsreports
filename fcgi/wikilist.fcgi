@@ -58,22 +58,22 @@ class WikiLister:
 		# First try a match on domain.  If that doesn't work (no matches),
 		# assume they added http://, or typed a database name instead.
 		c.execute("SELECT url, dbname FROM wiki WHERE url LIKE %s ORDER BY url ASC LIMIT 20",
-				'http://' + prefix + '%')
+				('http://' + prefix + '%',))
 		x = c.fetchall()
 
 		if len(x) == 0:	# no matches
 			c.execute("SELECT url, dbname FROM wiki WHERE dbname LIKE %s ORDER BY url ASC LIMIT 20",
-					prefix + '%')
+					(prefix + '%',))
 			x = c.fetchall()
 
 		if len(x) == 0:	# no matches
 			c.execute("SELECT url, dbname FROM wiki WHERE dbname LIKE %s ORDER BY url ASC LIMIT 20",
-					prefix + '%')
+					(prefix + '%',))
 			x = c.fetchall()
 
 		start_response('200 OK', 
 			[('Content-Type', 'text/plain; charset=UTF-8')])
-		yield json.dumps([{'value': v, 'dbname': l} for v,l in x])
+		yield json.dumps([{'value': v.split('//')[1], 'dbname': l} for v,l in x])
 
 context = ReportContext(cfg)
 app = WikiLister(context)
