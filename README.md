@@ -4,8 +4,8 @@ tsreports
 The reports tool is a way to provide commonly used database queries in a regularly updated, easy-to-use form.
 
 See also:
-  * http://toolserver.org/~reports
-  * https://jira.toolserver.org/browse/REPORTS
+  * https://tools.wmflabs.org/tsreports/
+  * https://phabricator.wikimedia.org/project/view/743/
 
 
 ## Contents
@@ -19,15 +19,18 @@ See also:
 
 ## For users
 
-The [reports tool](http://toolserver.org/~reports) is a way to provide
-commonly used database queries in a regularly updated, easy-to-use form. It is
-a companion to the SQL [Query service](/view/Query_service). If you would like
+The [reports tool](https://tools.wmflabs.org/tsreports/) is a way to provide
+commonly used database queries in a regularly updated, easy-to-use form. The
+project has been (partially) superseded by the [quarry service](quarry.wmflabs.org),
+which allows anyone to write and run SQL queries on the Labs databases.
+
+If you would like
 a new query added, open a request [in
-JIRA](https://jira.toolserver.org/browse/REPORTS) (in the 'Reports'
-component), describing what you want the query to do. If you can provide the
+Phabricator](https://phabricator.wikimedia.org/maniphest/task/edit/form/1/?project=tool-labs-tools-tsreports), describing what you want the query to do. If you can provide the
 SQL as well, that's helpful, but not a requirement.
 
 ## For developers
+*This section is outdated and still refers to the state as it was on the toolserver*
 
 This section describes how to develop the reports tool.
 
